@@ -97,7 +97,7 @@ def main():
 
     # Run some queries
     print("\n" + "=" * 60)
-    print("🤖 LightAgentX Tool Agent Demo")
+    print("LightAgentX Tool Agent Demo")
     print("=" * 60)
 
     queries = [
@@ -108,10 +108,10 @@ def main():
 
     for query in queries:
         print(f"\n{'=' * 60}")
-        print(f"📝 Query: {query}")
+        print(f"Query: {query}")
         print("=" * 60)
         result = agent.run(query)
-        print(f"\n📋 Final Answer: {result}")
+        print(f"\nFinal Answer: {result}")
         agent.reset()
 
 

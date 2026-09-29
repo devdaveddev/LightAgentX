@@ -20,15 +20,15 @@ class _Colors:
 
 
 _TAG_STYLES = {
-    "SYSTEM": (_Colors.CYAN, "⚙️"),
-    "THOUGHT": (_Colors.YELLOW, "💭"),
-    "ACTION": (_Colors.MAGENTA, "🔧"),
-    "OBSERVATION": (_Colors.BLUE, "👁️"),
-    "RESULT": (_Colors.GREEN, "✅"),
-    "ERROR": (_Colors.RED, "❌"),
-    "AGENT": (_Colors.CYAN, "🤖"),
-    "MEMORY": (_Colors.BLUE, "🧠"),
-    "PLAN": (_Colors.YELLOW, "📋"),
+    "SYSTEM": _Colors.CYAN,
+    "THOUGHT": _Colors.YELLOW,
+    "ACTION": _Colors.MAGENTA,
+    "OBSERVATION": _Colors.BLUE,
+    "RESULT": _Colors.GREEN,
+    "ERROR": _Colors.RED,
+    "AGENT": _Colors.CYAN,
+    "MEMORY": _Colors.BLUE,
+    "PLAN": _Colors.YELLOW,
 }
 
 
@@ -50,9 +50,9 @@ class AgentLogger:
     def _log(self, tag: str, message: str, detail: str | None = None) -> None:
         if not self.verbose:
             return
-        color, emoji = _TAG_STYLES.get(tag, (_Colors.WHITE, "•"))
+        color = _TAG_STYLES.get(tag, _Colors.WHITE)
         header = f"{color}{_Colors.BOLD}[{tag}]{_Colors.RESET}"
-        print(f"\n{emoji} {header} {message}")
+        print(f"\n{header} {message}")
         if detail:
             for line in detail.strip().split("\n"):
                 print(f"   {_Colors.DIM}{line}{_Colors.RESET}")

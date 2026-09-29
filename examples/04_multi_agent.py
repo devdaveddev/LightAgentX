@@ -14,7 +14,7 @@ from lightagentx import OpenAILLM, SingleAgent, SequentialPipeline, CrewAgent
 def demo_sequential():
     """Sequential Pipeline: Researcher → Writer → Editor"""
     print("\n" + "=" * 60)
-    print("📋 Sequential Pipeline Demo")
+    print("Sequential Pipeline Demo")
     print("=" * 60)
 
     llm = OpenAILLM(model="gpt-4o-mini")
@@ -55,7 +55,7 @@ def demo_sequential():
     )
 
     print(f"\n{'=' * 60}")
-    print("📝 Final Pipeline Output:")
+    print("Final Pipeline Output:")
     print("=" * 60)
     print(result)
 
@@ -63,7 +63,7 @@ def demo_sequential():
 def demo_crew():
     """Crew: Manager delegates to specialists"""
     print("\n" + "=" * 60)
-    print("👥 Crew Agent Demo")
+    print("Crew Agent Demo")
     print("=" * 60)
 
     llm = OpenAILLM(model="gpt-4o-mini")
@@ -104,7 +104,7 @@ def demo_crew():
     )
 
     print(f"\n{'=' * 60}")
-    print("📝 Final Crew Output:")
+    print("Final Crew Output:")
     print("=" * 60)
     print(result)
 

@@ -64,8 +64,8 @@ def main():
     goal = "Who created Python and JavaScript? What's the sum of their birth years?"
 
     print("=" * 60)
-    print("🧠 ReAct Agent Demo")
-    print(f"📝 Goal: {goal}")
+    print("ReAct Agent Demo")
+    print(f"Goal: {goal}")
     print("=" * 60)
 
     context = ""
@@ -87,7 +87,7 @@ def main():
         # Check if we have a final answer
         if step.action.lower() == "final answer":
             logger.result(step.action_input)
-            print(f"\n📋 Final Answer: {step.action_input}")
+            print(f"\nFinal Answer: {step.action_input}")
             return
 
         # Execute the action

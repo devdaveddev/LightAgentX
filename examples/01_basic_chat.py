@@ -20,7 +20,7 @@ def main():
     memory = BufferMemory(max_messages=20)
     memory.add_message("system", "You are a friendly and helpful AI assistant.")
 
-    print("🤖 LightAgentX Basic Chat")
+    print("LightAgentX Basic Chat")
     print("Type 'quit' to exit, 'clear' to reset memory\n")
 
     while True:
@@ -28,12 +28,12 @@ def main():
         if not user_input:
             continue
         if user_input.lower() == "quit":
-            print("Goodbye! 👋")
+            print("Goodbye!")
             break
         if user_input.lower() == "clear":
             memory.clear()
             memory.add_message("system", "You are a friendly and helpful AI assistant.")
-            print("Memory cleared! 🧹\n")
+            print("Memory cleared!\n")
             continue
 
         # Add user message to memory
