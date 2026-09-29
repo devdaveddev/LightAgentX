@@ -1,14 +1,4 @@
-"""
-Colored console logger for tracing agent reasoning chains.
-
-Provides visual distinction between different phases of the agent loop:
-  [SYSTEM]      — framework-level events (cyan)
-  [THOUGHT]     — LLM reasoning / planning (yellow)
-  [ACTION]      — tool calls being made (magenta)
-  [OBSERVATION] — tool results coming back (blue)
-  [RESULT]      — final answer (green)
-  [ERROR]       — errors and failures (red)
-"""
+"""Colored console logger for tracing agent reasoning chains."""
 
 from __future__ import annotations
 
@@ -29,7 +19,6 @@ class _Colors:
     WHITE = "\033[97m"
 
 
-# Tag → (color, emoji)
 _TAG_STYLES = {
     "SYSTEM": (_Colors.CYAN, "⚙️"),
     "THOUGHT": (_Colors.YELLOW, "💭"),
@@ -65,11 +54,8 @@ class AgentLogger:
         header = f"{color}{_Colors.BOLD}[{tag}]{_Colors.RESET}"
         print(f"\n{emoji} {header} {message}")
         if detail:
-            # Indent detail lines for readability
             for line in detail.strip().split("\n"):
                 print(f"   {_Colors.DIM}{line}{_Colors.RESET}")
-
-    # ── Convenience methods ──────────────────────────────────────────
 
     def system(self, message: str, detail: str | None = None) -> None:
         self._log("SYSTEM", message, detail)

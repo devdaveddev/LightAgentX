@@ -1,18 +1,4 @@
-"""
-Sequential Pipeline — chains multiple agents so output flows from one to the next.
-
-HOW THIS MAPS TO LANGCHAIN:
-  - LangChain's `SequentialChain` / LCEL `chain1 | chain2 | chain3`
-  - CrewAI's sequential process: Agent A → Agent B → Agent C
-
-WHAT YOU LEARN HERE:
-  This is the simplest multi-agent pattern:
-  - Agent 1 processes the input and produces output
-  - Agent 2 takes Agent 1's output as input
-  - Agent 3 takes Agent 2's output... and so on
-
-  Example use case: Researcher → Writer → Editor pipeline
-"""
+"""Sequential Pipeline — chains multiple agents so output flows from one to the next."""
 
 from __future__ import annotations
 
@@ -50,15 +36,7 @@ class SequentialPipeline(BaseAgent):
         self.logger = AgentLogger(verbose=verbose)
 
     def run(self, input_text: str) -> str:
-        """
-        Run agents sequentially, passing output to the next.
-
-        THE FLOW:
-            input → Agent1 → output1 → Agent2 → output2 → ... → final output
-
-        Each intermediate output is formatted so the next agent understands
-        the context it's receiving.
-        """
+        """Run agents sequentially, passing output to the next."""
         self.logger.separator()
         self.logger.system(
             f"Sequential Pipeline: {self.name}",
@@ -74,7 +52,6 @@ class SequentialPipeline(BaseAgent):
                 f"Step {i}/{len(self.agents)} — processing...",
             )
 
-            # Format input for downstream agents to include context
             if i > 1:
                 formatted_input = (
                     f"You are step {i} in a pipeline. "
@@ -87,7 +64,6 @@ class SequentialPipeline(BaseAgent):
             else:
                 formatted_input = current_input
 
-            # Run the agent
             current_input = agent.run(formatted_input)
 
             self.logger.agent(

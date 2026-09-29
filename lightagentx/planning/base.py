@@ -1,16 +1,4 @@
-"""
-Abstract base class for task planners.
-
-HOW THIS MAPS TO LANGCHAIN:
-  - LangChain doesn't have a separate "planner" abstraction — it's baked
-    into the agent prompt and output parser
-  - We make it explicit so you understand the planning step clearly
-
-WHAT YOU LEARN HERE:
-  A planner takes a goal + context and produces a sequence of Steps.
-  Each Step has a thought (reasoning) and an action (what to do).
-  The loop engine then executes these steps.
-"""
+"""Abstract base class for task planners."""
 
 from __future__ import annotations
 

@@ -1,16 +1,4 @@
-"""
-Tool Registry — a name-based lookup table for tools.
-
-HOW THIS MAPS TO LANGCHAIN:
-  - LangChain stores tools in a list and does name-based lookup internally
-  - The `to_openai_schema()` method is what LangChain calls when it does
-    `format_tool_to_openai_function()` / `convert_to_openai_tool()`
-
-WHAT YOU LEARN HERE:
-  The registry is just a dict mapping tool names → tool objects.
-  Its main job is to bulk-convert all tools into the JSON Schema format
-  that the OpenAI API expects.
-"""
+"""Tool Registry — a name-based lookup table for tools."""
 
 from __future__ import annotations
 
@@ -28,10 +16,7 @@ class ToolRegistry:
         registry.register(my_tool)
         registry.register(another_tool)
 
-        # Get OpenAI-compatible schemas for all tools
         schemas = registry.to_openai_schema()
-
-        # Look up a tool by name
         tool = registry.get("my_tool")
     """
 
@@ -57,22 +42,7 @@ class ToolRegistry:
         return self._tools.get(name)
 
     def to_openai_schema(self) -> list[dict[str, Any]]:
-        """
-        Convert ALL registered tools to OpenAI function-calling format.
-
-        Returns a list like:
-        [
-            {
-                "type": "function",
-                "function": {
-                    "name": "calculate",
-                    "description": "Evaluate a math expression.",
-                    "parameters": { ... }
-                }
-            },
-            ...
-        ]
-        """
+        """Convert all registered tools to OpenAI function-calling format."""
         return [tool.to_openai_schema() for tool in self._tools.values()]
 
     @property

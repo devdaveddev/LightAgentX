@@ -1,16 +1,4 @@
-"""
-Buffer Memory — stores the last N messages in a simple FIFO queue.
-
-HOW THIS MAPS TO LANGCHAIN:
-  - This is LangChain's `ConversationBufferWindowMemory`
-  - `k` parameter in LangChain ≈ our `max_messages`
-  - System prompt is always preserved (never evicted)
-
-WHAT YOU LEARN HERE:
-  The simplest memory strategy: just keep a sliding window of recent messages.
-  Pros: fast, predictable token usage.
-  Cons: loses old context entirely.
-"""
+"""Buffer Memory — stores the last N messages in a simple FIFO queue."""
 
 from __future__ import annotations
 
@@ -46,11 +34,9 @@ class BufferMemory(BaseMemory):
         """
         message: dict[str, Any] = {"role": role, "content": content}
 
-        # Handle extra fields (tool_call_id, tool_calls, etc.)
         if "tool_call_id" in kwargs:
             message["tool_call_id"] = kwargs["tool_call_id"]
         if "tool_calls" in kwargs:
-            # Store tool calls in OpenAI's format for the assistant message
             message["tool_calls"] = [
                 {
                     "id": tc["id"],
@@ -73,7 +59,6 @@ class BufferMemory(BaseMemory):
 
         self._messages.append(message)
 
-        # Evict oldest non-system messages if over limit
         while len(self._messages) > self.max_messages:
             self._messages.pop(0)
 

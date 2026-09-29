@@ -1,18 +1,4 @@
-"""
-Crew Agent — role-based agent collaboration with a manager.
-
-HOW THIS MAPS TO LANGCHAIN/CREWAI:
-  - This is CrewAI's `Crew` with `process=Process.hierarchical`
-  - A manager agent sees all specialist agents and delegates subtasks
-  - Each specialist processes their assigned subtask and returns results
-  - The manager synthesizes all results into a final answer
-
-WHAT YOU LEARN HERE:
-  1. How hierarchical multi-agent orchestration works
-  2. How a manager LLM decides which specialist to invoke
-  3. How results from multiple agents get combined
-  4. The pattern behind CrewAI, AutoGen, and similar frameworks
-"""
+"""Crew Agent — role-based agent collaboration with a manager."""
 
 from __future__ import annotations
 
@@ -96,28 +82,19 @@ class CrewAgent(BaseAgent):
         self.logger = AgentLogger(verbose=verbose)
 
     def run(self, input_text: str) -> str:
-        """
-        Run the crew on a task.
-
-        THE FLOW:
-        1. Manager analyzes the task and creates delegations
-        2. Each specialist agent processes their assigned subtask
-        3. Manager synthesizes all results into a final answer
-        """
+        """Run the crew on a task."""
         self.logger.separator()
         self.logger.system(
             f"Crew: {self.name}",
             f"Agents: {list(self.agents.keys())}",
         )
 
-        # Step 1: Manager decides on delegations
         delegations = self._get_delegations(input_text)
         self.logger.plan(
             "Manager created delegation plan:",
             json.dumps(delegations, indent=2),
         )
 
-        # Step 2: Execute each delegation
         results: list[dict[str, str]] = []
         for delegation in delegations:
             agent_name = delegation.get("agent", "")
@@ -145,7 +122,6 @@ class CrewAgent(BaseAgent):
 
             self.logger.agent(agent_name, f"Done — {len(result)} chars")
 
-        # Step 3: Synthesize results
         self.logger.separator()
         self.logger.system("Manager synthesizing results...")
         final = self._synthesize(input_text, results)
@@ -171,11 +147,8 @@ class CrewAgent(BaseAgent):
             ]
         )
 
-        # Parse the JSON response
         try:
-            # Try to extract JSON from the response
             content = response.content.strip()
-            # Handle case where LLM wraps JSON in markdown code blocks
             if "```" in content:
                 content = content.split("```")[1]
                 if content.startswith("json"):
@@ -191,7 +164,6 @@ class CrewAgent(BaseAgent):
                 "falling back to broadcasting task to all agents"
             )
 
-        # Fallback: send the task to all agents
         return [
             {"agent": name, "task": task} for name in self.agents
         ]

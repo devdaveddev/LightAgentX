@@ -1,18 +1,4 @@
-"""
-Tool Executor — dispatches tool calls from the LLM to the actual functions.
-
-HOW THIS MAPS TO LANGCHAIN:
-  - This is part of what LangChain's `AgentExecutor` does internally
-  - When the LLM returns a tool_call, the executor:
-    1. Looks up the tool by name in the registry
-    2. Parses the JSON arguments
-    3. Invokes the function
-    4. Returns the result (or error message)
-
-WHAT YOU LEARN HERE:
-  This is the bridge between the LLM's structured output and your Python code.
-  The executor must handle errors gracefully so the loop can recover.
-"""
+"""Tool Executor — dispatches tool calls from the LLM to the actual functions."""
 
 from __future__ import annotations
 
@@ -46,13 +32,6 @@ class ToolExecutor:
 
         Returns:
             String result of the tool execution, or an error message.
-
-        THE EXECUTION FLOW:
-        1. Extract tool name and arguments from the tool_call dict
-        2. Look up the tool in the registry
-        3. Call the tool function with the arguments
-        4. Convert the result to a string
-        5. If anything fails, return an error message (don't crash the loop)
         """
         name = tool_call.get("name", "")
         arguments = tool_call.get("arguments", {})
@@ -60,7 +39,6 @@ class ToolExecutor:
 
         self.logger.action(name, arguments)
 
-        # Step 1: Look up the tool
         tool = self.registry.get(name)
         if tool is None:
             error_msg = (
@@ -70,11 +48,8 @@ class ToolExecutor:
             self.logger.error(error_msg)
             return f"Error: {error_msg}"
 
-        # Step 2: Execute the tool
         try:
             result = tool(**arguments)
-
-            # Convert result to string
             result_str = str(result) if result is not None else "Done (no output)"
             self.logger.observation(result_str)
             return result_str

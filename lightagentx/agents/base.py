@@ -1,15 +1,4 @@
-"""
-Abstract base class for agents.
-
-HOW THIS MAPS TO LANGCHAIN:
-  - LangChain's `BaseChain` / `Runnable` serves a similar role
-  - Every agent is something you can `.run(input)` and get a string back
-  - This simple interface enables composability (pipelines, crews)
-
-WHAT YOU LEARN HERE:
-  The agent abstraction is deliberately simple — just `run(input) → output`.
-  This makes it trivial to chain agents together.
-"""
+"""Abstract base class for agents."""
 
 from __future__ import annotations
 

@@ -1,25 +1,4 @@
-"""
-ReAct Planner — implements the Reasoning + Acting pattern.
-
-HOW THIS MAPS TO LANGCHAIN:
-  - This is the core of LangChain's ReAct agent (`create_react_agent`)
-  - The prompt forces the LLM to output structured Thought/Action/Action Input
-  - LangChain uses an `OutputParser` to parse this; we do it with simple string parsing
-
-THE REACT PATTERN (Yao et al., 2022):
-  The LLM alternates between:
-    Thought: reasoning about the current state
-    Action: choosing a tool to use (or "Final Answer")
-    Action Input: the input to that tool
-    Observation: (filled in by the tool result)
-
-  This continues until the LLM outputs "Final Answer" as the action.
-
-WHAT YOU LEARN HERE:
-  1. How to craft prompts that force structured LLM output
-  2. How to parse semi-structured text from an LLM
-  3. The fundamental ReAct loop that powers most LangChain agents
-"""
+"""ReAct Planner — implements the Reasoning + Acting pattern."""
 
 from __future__ import annotations
 
@@ -80,19 +59,10 @@ class ReActPlanner(BasePlanner):
         context: str = "",
         available_tools: list[str] | None = None,
     ) -> Step:
-        """
-        Ask the LLM to reason and produce the next step.
-
-        The method:
-        1. Builds a system prompt listing available tools
-        2. Constructs a user message with the goal + any prior context
-        3. Calls the LLM
-        4. Parses the response into a Step
-        """
+        """Ask the LLM to reason and produce the next step."""
         tools_str = ", ".join(available_tools or [])
         system_prompt = _REACT_SYSTEM_PROMPT.format(tool_descriptions=tools_str)
 
-        # Build the user message
         user_content = f"Goal: {goal}"
         if context:
             user_content += f"\n\nContext from previous steps:\n{context}"
@@ -107,19 +77,7 @@ class ReActPlanner(BasePlanner):
 
     @staticmethod
     def _parse_response(text: str) -> Step:
-        """
-        Parse the LLM's ReAct-formatted response into a Step.
-
-        Expected format:
-            Thought: ...
-            Action: ...
-            Action Input: ...
-
-        HOW THIS WORKS:
-          We scan line by line, looking for the prefixes "Thought:", "Action:",
-          and "Action Input:". This is simple but effective — the same basic
-          approach LangChain uses in its ReAct output parser.
-        """
+        """Parse the LLM's ReAct-formatted response into a Step."""
         thought = ""
         action = ""
         action_input = ""
@@ -134,7 +92,6 @@ class ReActPlanner(BasePlanner):
             elif stripped.lower().startswith("action:"):
                 action = stripped[len("action:"):].strip()
 
-        # Fallback: if parsing failed, treat the whole response as a final answer
         if not action:
             return Step(
                 thought=thought or text,

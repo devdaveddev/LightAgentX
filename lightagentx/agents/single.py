@@ -1,14 +1,4 @@
-"""
-Single Agent — one LLM + tools + memory wrapped with a persona.
-
-HOW THIS MAPS TO LANGCHAIN:
-  - This combines LangChain's `create_tool_calling_agent()` + `AgentExecutor`
-  - In CrewAI, this is a single `Agent` with a `role` and `goal`
-
-WHAT YOU LEARN HERE:
-  A SingleAgent is essentially a configured AgentLoop with a personality.
-  It's the building block for multi-agent systems.
-"""
+"""Single Agent — one LLM + tools + memory wrapped with a persona."""
 
 from __future__ import annotations
 
@@ -56,7 +46,6 @@ class SingleAgent(BaseAgent):
         self.verbose = verbose
         self.logger = AgentLogger(verbose=verbose)
 
-        # The AgentLoop does the actual work
         self._loop = AgentLoop(
             llm=self.llm,
             tools=self.tools,
@@ -67,12 +56,7 @@ class SingleAgent(BaseAgent):
         )
 
     def run(self, input_text: str) -> str:
-        """
-        Run the agent on the given input.
-
-        Delegates to the AgentLoop which handles the full
-        reasoning → tool-calling → observation cycle.
-        """
+        """Run the agent on the given input."""
         self.logger.agent(self.name, f"Starting task: {input_text[:100]}")
         result = self._loop.run(input_text)
         self.logger.agent(self.name, "Task complete")
@@ -81,7 +65,6 @@ class SingleAgent(BaseAgent):
     def reset(self) -> None:
         """Reset the agent's memory and loop state."""
         self._loop.reset()
-        # Reconstruct the loop with a fresh memory
         self.memory = BufferMemory(max_messages=50)
         self._loop = AgentLoop(
             llm=self.llm,

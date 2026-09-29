@@ -1,14 +1,4 @@
-"""
-Abstract base class for LLM providers.
-
-This is the foundational abstraction that lets you swap between OpenAI,
-Anthropic, Gemini, or any other provider without changing agent code.
-
-HOW THIS MAPS TO LANGCHAIN:
-  - LangChain's `BaseChatModel` serves the same purpose
-  - `chat()` ≈ `invoke()` — basic text completion
-  - `chat_with_tools()` ≈ `bind_tools()` + `invoke()` — completion with tool-calling
-"""
+"""Abstract base class for LLM providers."""
 
 from __future__ import annotations
 
@@ -26,7 +16,7 @@ class LLMResponse:
         content: The text response (may be empty if tool_calls are present).
         tool_calls: List of tool call requests from the LLM.
                     Each dict has: {"id": str, "name": str, "arguments": dict}
-        raw: The raw response object from the provider (for debugging).
+        raw: The raw response object from the provider.
     """
 
     content: str = ""
