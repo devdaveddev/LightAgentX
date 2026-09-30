@@ -1,4 +1,4 @@
-# LightAgentX — Deep Dive Interview Guide
+# LightAgentX 
 
 > A from-scratch agentic AI framework. Built to understand exactly how LangChain, CrewAI, and AutoGPT work under the hood. Every line is intentional.
 
