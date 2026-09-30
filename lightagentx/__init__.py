@@ -21,6 +21,7 @@ __version__ = "0.1.0"
 
 from .llm.base import BaseLLM, LLMResponse
 from .llm.openai_llm import OpenAILLM
+from .llm.router import SmartRouter
 
 from .memory.base import BaseMemory
 from .memory.buffer import BufferMemory
@@ -40,11 +41,14 @@ from .agents.single import SingleAgent
 from .agents.sequential import SequentialPipeline
 from .agents.crew import CrewAgent
 
+from .hooks import HookRegistry, HookEvent
+from .snapshot import AgentSnapshot
+
 from .utils.logger import AgentLogger
 
 __all__ = [
     # LLM
-    "BaseLLM", "LLMResponse", "OpenAILLM",
+    "BaseLLM", "LLMResponse", "OpenAILLM", "SmartRouter",
     # Memory
     "BaseMemory", "BufferMemory", "SummaryMemory",
     # Tools
@@ -55,6 +59,8 @@ __all__ = [
     "AgentLoop",
     # Agents
     "BaseAgent", "SingleAgent", "SequentialPipeline", "CrewAgent",
+    # Hooks & Snapshots
+    "HookRegistry", "HookEvent", "AgentSnapshot",
     # Utils
     "AgentLogger",
 ]
