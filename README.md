@@ -726,45 +726,6 @@ Here is exactly what happens in order:
 15. `llm.chat_with_tools(messages, schemas)` → API sees tool result → returns `"25 * 37 equals 925"`
 16. `has_tool_calls = False` → final answer → return `"25 * 37 equals 925"`
 
----
-
-## Common Interview Questions
-
-**Q: Why does the assistant message with tool_calls have to be added to memory before the tool result?**
-
-The OpenAI API validates conversation structure. A `tool` role message must always be preceded by an `assistant` message that contains the corresponding `tool_calls` entry with a matching `id`. If you add the tool result without the assistant message first, the API returns a 400 error. This is the most common bug when building tool-calling agents from scratch.
-
-**Q: Why does `_extract_parameters_schema` use `get_type_hints()` instead of `func.__annotations__`?**
-
-`func.__annotations__` returns raw annotation objects which may be strings (forward references) when `from __future__ import annotations` is used. `get_type_hints()` resolves those strings into actual types. Since the codebase uses `from __future__ import annotations` everywhere, `get_type_hints()` is required.
-
-**Q: How does the ReAct planner differ from the AgentLoop?**
-
-`AgentLoop` uses OpenAI's native function calling — the LLM returns structured `tool_calls` JSON. `ReActPlanner` uses prompt engineering — the LLM returns free text in `Thought/Action/Action Input` format which is then parsed. ReAct works with any LLM that can follow instructions. Native function calling is more reliable but requires API support.
-
-**Q: What happens if a tool throws an exception?**
-
-`ToolExecutor.execute()` wraps the call in a try/except. The exception message is returned as a string: `"Error: Tool 'calculate' failed: ZeroDivisionError: division by zero"`. This string gets added to memory as a tool result. The LLM sees it on the next iteration and can decide to retry with different arguments or give up.
-
-**Q: How does `SummaryMemory` avoid losing context when the buffer fills up?**
-
-When `len(self._messages) > max_messages`, it splits the message list in half. The older half is summarized by the LLM using a compression prompt. The summary is stored as a string. On every `get_messages()` call, the summary is injected into the system message content. The LLM always sees the summary even though the original messages are gone.
-
-**Q: How does `CrewAgent` know which specialist to call?**
-
-The manager LLM is given a system prompt listing all specialist agents with their names and descriptions. It responds with a JSON array of delegations. The `description` field on `BaseAgent` is specifically designed for this — it tells other agents what a given agent is good at. If the manager's JSON is malformed, the fallback is to send the task to all agents.
-
-**Q: Why is `ToolRegistry` a separate class from `ToolExecutor`?**
-
-Single responsibility. The registry is a lookup table — it only knows about tool schemas and name-to-tool mapping. The executor is a dispatcher — it knows how to call tools and handle errors. The loop uses the registry to get schemas for the LLM, and the executor to run tool calls. They could be merged but separating them makes each easier to test and reason about.
-
-**Q: What is `tool_choice = "auto"` in `chat_with_tools`?**
-
-It tells OpenAI the LLM can decide whether to call a tool or respond with text. The alternatives are `"none"` (never call tools) and `{"type": "function", "function": {"name": "..."}}` (force a specific tool). `"auto"` is the right default for agents because you want the LLM to decide when tools are needed.
-
----
-
----
 
 ## Module 8: `llm/router.py` — SmartRouter (Auto Model Switching)
 
