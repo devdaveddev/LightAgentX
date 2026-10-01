@@ -6,7 +6,7 @@
 
 ## What is LightAgentX?
 
-LightAgentX is a minimal but complete agentic AI framework written in pure Python. It has no magic, no hidden abstractions. Every concept that LangChain or CrewAI uses — tool calling, memory, planning, multi-agent orchestration — is implemented here from scratch with full visibility into how it works.
+LightAgentX is a minimal but complete agentic AI framework written in pure Python. It has no magic, no hidden abstractions. Every concept that LangChain or CrewAI uses — tool calling, memory, planning, multi-agent orchestration is implemented here from scratch with full visibility into how it works.
 
 The only external dependency is `openai>=1.0.0`. Everything else is standard Python.
 
