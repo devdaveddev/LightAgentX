@@ -11,6 +11,9 @@ setup(
         "openai>=1.0.0",
     ],
     extras_require={
+        "anthropic": ["anthropic>=0.30.0"],
+        "gemini": ["google-genai>=1.0.0"],
+        "all": ["anthropic>=0.30.0", "google-genai>=1.0.0"],
         "dev": ["pytest>=7.0.0"],
     },
 )

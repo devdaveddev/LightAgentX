@@ -20,8 +20,19 @@ Quick Start:
 __version__ = "0.1.0"
 
 from .llm.base import BaseLLM, LLMResponse
+from .llm.key_guard import SecureKey
 from .llm.openai_llm import OpenAILLM
 from .llm.router import SmartRouter
+
+try:
+    from .llm.anthropic_llm import AnthropicLLM
+except ImportError:
+    pass
+
+try:
+    from .llm.gemini_llm import GeminiLLM
+except ImportError:
+    pass
 
 from .memory.base import BaseMemory
 from .memory.buffer import BufferMemory
@@ -48,7 +59,8 @@ from .utils.logger import AgentLogger
 
 __all__ = [
     # LLM
-    "BaseLLM", "LLMResponse", "OpenAILLM", "SmartRouter",
+    "BaseLLM", "LLMResponse", "SecureKey",
+    "OpenAILLM", "AnthropicLLM", "GeminiLLM", "SmartRouter",
     # Memory
     "BaseMemory", "BufferMemory", "SummaryMemory",
     # Tools

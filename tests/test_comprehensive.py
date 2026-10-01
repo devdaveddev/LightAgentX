@@ -11,12 +11,13 @@ Tests cover:
 """
 
 import json
+import pickle
 import pytest
 
 # ── 1. Top-level import test ──────────────────────────────────────────────────
 
 from lightagentx import (
-    BaseLLM, LLMResponse, OpenAILLM,
+    BaseLLM, LLMResponse, OpenAILLM, SecureKey,
     BaseMemory, BufferMemory, SummaryMemory,
     BaseTool, tool, ToolRegistry, ToolExecutor,
     BasePlanner, Step, ReActPlanner,
@@ -24,6 +25,7 @@ from lightagentx import (
     BaseAgent, SingleAgent, SequentialPipeline, CrewAgent,
     AgentLogger,
 )
+from lightagentx.llm.key_guard import SecureKey as _SecureKeyDirect
 
 
 # ── Shared mock LLM ──────────────────────────────────────────────────────────
@@ -80,6 +82,100 @@ class TestOpenAILLMInit:
         with pytest.raises(ValueError, match="API key not found"):
             OpenAILLM(api_key=None)
 
+
+class TestSecureKey:
+    """Security tests for API key handling."""
+
+    def test_repr_masks_key(self):
+        key = _SecureKeyDirect("sk-abcdefghijklmnopqrstuvwxyz1234", provider="openai")
+        r = repr(key)
+        assert "sk-abcdefghijklmnopqrstuvwxyz1234" not in r
+        assert "1234" in r
+        assert "SecureKey" in r
+
+    def test_str_masks_key(self):
+        key = _SecureKeyDirect("sk-abcdefghijklmnopqrstuvwxyz1234", provider="openai")
+        s = str(key)
+        assert "sk-abcdefghijklmnopqrstuvwxyz1234" not in s
+        assert "1234" in s
+
+    def test_unwrap_returns_real_key(self):
+        raw = "sk-abcdefghijklmnopqrstuvwxyz1234"
+        key = _SecureKeyDirect(raw, provider="openai")
+        assert key.unwrap() == raw
+
+    def test_pickle_raises(self):
+        key = _SecureKeyDirect("sk-abcdefghijklmnopqrstuvwxyz1234", provider="openai")
+        with pytest.raises(TypeError, match="cannot be pickled"):
+            pickle.dumps(key)
+
+    def test_empty_key_raises(self):
+        with pytest.raises(ValueError, match="non-empty string"):
+            _SecureKeyDirect("")
+
+    def test_none_key_raises(self):
+        with pytest.raises(ValueError, match="non-empty string"):
+            _SecureKeyDirect(None)
+
+    def test_invalid_openai_format_raises(self):
+        with pytest.raises(ValueError, match="does not match"):
+            _SecureKeyDirect("bad-key", provider="openai")
+
+    def test_invalid_anthropic_format_raises(self):
+        with pytest.raises(ValueError, match="does not match"):
+            _SecureKeyDirect("bad-key", provider="anthropic")
+
+    def test_no_provider_validation_accepts_any(self):
+        key = _SecureKeyDirect("any-random-string-here")
+        assert key.unwrap() == "any-random-string-here"
+
+    def test_key_not_in_fstring(self):
+        raw = "sk-supersecretkey1234567890abcdef"
+        key = _SecureKeyDirect(raw, provider="openai")
+        output = f"Using key: {key}"
+        assert raw not in output
+
+    def test_key_not_in_format(self):
+        raw = "sk-supersecretkey1234567890abcdef"
+        key = _SecureKeyDirect(raw, provider="openai")
+        output = "Key is {}".format(key)
+        assert raw not in output
+
+    def test_equality(self):
+        k1 = _SecureKeyDirect("sk-abcdefghijklmnopqrstuvwxyz1234", provider="openai")
+        k2 = _SecureKeyDirect("sk-abcdefghijklmnopqrstuvwxyz1234", provider="openai")
+        assert k1 == k2
+
+    def test_bool_is_true(self):
+        key = _SecureKeyDirect("sk-abcdefghijklmnopqrstuvwxyz1234", provider="openai")
+        assert bool(key) is True
+
+    def test_short_key_fully_masked(self):
+        key = _SecureKeyDirect("abc")
+        assert "abc" not in repr(key)
+        assert "****" in repr(key)
+
+
+class TestAnthropicLLMInit:
+    def test_missing_api_key_raises(self, monkeypatch):
+        monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+        try:
+            from lightagentx.llm.anthropic_llm import AnthropicLLM
+            with pytest.raises(ValueError, match="API key not found"):
+                AnthropicLLM(api_key=None)
+        except ImportError:
+            pytest.skip("anthropic package not installed")
+
+
+class TestGeminiLLMInit:
+    def test_missing_api_key_raises(self, monkeypatch):
+        monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
+        try:
+            from lightagentx.llm.gemini_llm import GeminiLLM
+            with pytest.raises(ValueError, match="API key not found"):
+                GeminiLLM(api_key=None)
+        except ImportError:
+            pytest.skip("google-genai package not installed")
 
 # ── 3. Memory Tests ──────────────────────────────────────────────────────────
 

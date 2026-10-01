@@ -9,6 +9,7 @@ from typing import Any
 from openai import OpenAI
 
 from .base import BaseLLM, LLMResponse
+from .key_guard import SecureKey
 
 
 class OpenAILLM(BaseLLM):
@@ -19,6 +20,7 @@ class OpenAILLM(BaseLLM):
         llm = OpenAILLM()                          # uses gpt-4o-mini by default
         llm = OpenAILLM(model="gpt-4o")            # specify model
         llm = OpenAILLM(api_key="sk-...")           # explicit key
+        llm = OpenAILLM(base_url="https://api.groq.com/openai/v1")  # compatible
 
         response = llm.chat([{"role": "user", "content": "Hello!"}])
         print(response.content)
@@ -30,6 +32,7 @@ class OpenAILLM(BaseLLM):
         temperature: float = 0.7,
         max_tokens: int = 1024,
         api_key: str | None = None,
+        base_url: str | None = None,
     ):
         super().__init__(model=model, temperature=temperature, max_tokens=max_tokens)
 
@@ -40,7 +43,12 @@ class OpenAILLM(BaseLLM):
                 "the OPENAI_API_KEY environment variable."
             )
 
-        self._client = OpenAI(api_key=resolved_key)
+        self._api_key = SecureKey(resolved_key, provider="openai")
+
+        client_kwargs: dict[str, Any] = {"api_key": self._api_key.unwrap()}
+        if base_url:
+            client_kwargs["base_url"] = base_url
+        self._client = OpenAI(**client_kwargs)
 
     def chat(self, messages: list[dict[str, str]]) -> LLMResponse:
         """Send messages to OpenAI and get a text response."""
