@@ -43,8 +43,7 @@ class OpenAILLM(BaseLLM):
                 "the OPENAI_API_KEY environment variable."
             )
 
-        # OpenAI-compatible servers (Ollama, vLLM, Groq...) use other key formats.
-        self._api_key = SecureKey(resolved_key, provider=None if base_url else "openai")
+        self._api_key = SecureKey(resolved_key, provider="openai")
 
         client_kwargs: dict[str, Any] = {"api_key": self._api_key.unwrap()}
         if base_url:

@@ -55,11 +55,6 @@ from .agents.crew import CrewAgent
 from .hooks import HookRegistry, HookEvent
 from .snapshot import AgentSnapshot
 
-from .sandbox import Risk, Sandbox, SandboxPolicy, SandboxViolation
-from .features import (
-    SmartOSDisabledError, disable_smartos, enable_smartos, smartos_enabled, smartos_status,
-)
-
 from .utils.logger import AgentLogger
 
 __all__ = [
@@ -78,11 +73,6 @@ __all__ = [
     "BaseAgent", "SingleAgent", "SequentialPipeline", "CrewAgent",
     # Hooks & Snapshots
     "HookRegistry", "HookEvent", "AgentSnapshot",
-    # Sandbox (SmartOS lives in lightagentx.smartos — needs the [os] extra)
-    "Risk", "Sandbox", "SandboxPolicy", "SandboxViolation",
-    # SmartOS on/off switch
-    "smartos_enabled", "smartos_status", "enable_smartos", "disable_smartos",
-    "SmartOSDisabledError",
     # Utils
     "AgentLogger",
 ]
