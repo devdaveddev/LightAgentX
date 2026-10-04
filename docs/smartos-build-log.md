@@ -16,7 +16,8 @@ This is a step-by-step record of how SmartOS was added to LightAgentX. Each step
 9. [Packaging](#step-9--packaging)
 10. [Tests](#step-10--tests)
 11. [Fixes found while testing](#step-11--fixes-found-while-testing)
-12. [Branch, commits and rollback](#step-12--branch-commits-and-rollback)
+12. [Branch, commits, and the SmartOS on/off switch](#step-12--branch-commits-and-the-smartos-onoff-switch)
+13. [Install testing as a real user](#step-13--install-testing-as-a-real-user)
 
 ---
 
@@ -896,52 +897,98 @@ Live check of the tools on this machine: SELinux enforcing, firewalld running, o
 
 ---
 
-## Step 12 — Branch, commits and rollback
+## Step 12 — Branch, commits, and the SmartOS on/off switch
 
 ```
 pre-smartos (tag)  ec7b44a  main before any of this
 feature/smartos    ├─ fix(llm): accept non-OpenAI key formats when base_url is set
-                   └─ feat: add sandbox and SmartOS agent layer
-                         trailer: SmartOS-Rollback-Group: smartos
+                   ├─ feat: add sandbox and SmartOS agent layer
+                   └─ feat: SmartOS on/off switch + install fixes
 ```
 
-The key fix is a **separate commit**, so removing SmartOS keeps it.
+The key fix is a separate commit because it's useful on its own.
 
-### Rollback script — `scripts/rollback_smartos.py`
+### Why a switch instead of deleting code
+
+The goal is to drop back to "LightAgentX as a simple agent manager" **without** losing SmartOS. A first version used a git-revert script. It was replaced by a runtime switch, because users who `pip install` the library don't have a git repo, and turning SmartOS back on should take one command.
+
+### `lightagentx/features.py`
+
+The setting is resolved in a fixed order, so it's always clear which source decided:
 
 ```python
-TRAILER = "SmartOS-Rollback-Group: smartos"
-SMARTOS_PATHS = ["lightagentx/sandbox", "lightagentx/smartos", "tests/test_sandbox.py",
-                 "tests/test_smartos.py", "examples/08_smart_os.py",
-                 "docs/smartos-build-log.md", "scripts/rollback_smartos.py"]
-
-def find_smartos_commits() -> list[str]:
-    tagged  = git("log", "--no-merges", "--format=%H", f"--grep={TRAILER}", "--fixed-strings").split()
-    by_path = git("log", "--no-merges", "--format=%H", "--", *SMARTOS_PATHS).split()
-    ...  # union, newest first
-
-for c in commits:                                   # revert all into ONE commit
-    r = subprocess.run(["git", "revert", "--no-commit", c], ...)
-    if r.returncode != 0:
-        subprocess.run(["git", "revert", "--abort"])    # conflict -> change nothing
-        raise SystemExit(...)
-git("commit", "-m", "Remove SmartOS (rollback) ... Undo this rollback with: git revert HEAD")
+def smartos_status() -> dict[str, Any]:
+    env = os.environ.get(SMARTOS_ENV, "").strip().lower()        # 1. LIGHTAGENTX_SMARTOS
+    if env in _TRUE or env in _FALSE:
+        return {"enabled": env in _TRUE, "source": f"env {SMARTOS_ENV}={env}", ...}
+    cfg = _load()                                                 # 2. ~/.lightx/config.json
+    if isinstance(cfg.get("smartos"), bool):
+        return {"enabled": cfg["smartos"], "source": "config file", ...}
+    return {"enabled": True, "source": "default", ...}            # 3. default: on
 ```
 
-It finds commits by trailer **and** by path, so follow-up SmartOS commits are caught even if you forget the trailer. It reverts instead of rewriting history, so the rollback can itself be undone. It refuses to run with uncommitted changes, and on any conflict it restores the original state.
+`disable_smartos()` / `enable_smartos()` write the config file and keep any other keys. If an environment variable overrides what was just saved, they say so.
 
-```bash
-python scripts/rollback_smartos.py --dry-run        # see what would be removed
-python scripts/rollback_smartos.py                  # remove (asks y/N)
-python scripts/rollback_smartos.py --purge-data     # also delete ~/.lightx workspace + audit log
-#   ~/.lightx/trash is KEPT unless you add --purge-trash — it holds files SmartOS deleted for you
-git revert HEAD                                     # changed your mind: bring SmartOS back
+### Enforced in three places
+
+```python
+# 1. lightagentx/smartos/__init__.py — the package refuses to import
+from ..features import require_smartos
+require_smartos()  # switched off -> SmartOSDisabledError
+
+# 2. SmartOS.__init__ — catches switching off at runtime, after the import
+require_smartos()
+
+# 3. the lightx-os command now starts here (pyproject: lightx-os = "lightagentx.features:launch_smartos")
+def launch_smartos(argv=None) -> int:
+    if "--enable" in args:  print(enable_smartos());  return 0
+    if "--disable" in args: print(disable_smartos()); return 0
+    if "--status" in args:  ...;                       return 0
+    try:
+        require_smartos()
+    except SmartOSDisabledError as e:
+        print(e, file=sys.stderr); return 1
+    try:
+        import psutil
+    except ImportError:
+        print('SmartOS needs psutil. Install it with:  pip install "lightagentx[os]"'); return 1
+    from .smartos.cli import main
+    return main(args)
 ```
 
-Other ways out:
+The launcher sits **outside** the `smartos` package. Otherwise `lightx-os --enable` couldn't run while SmartOS was off: importing the package to reach the CLI would already fail.
 
-| Situation | Command |
+`SmartOSDisabledError` subclasses `ImportError`, so existing `try: import ... except ImportError` code keeps working.
+
+`~/.lightx/config.json` is on the sandbox deny list, so an agent can't switch itself on or off.
+
+### Tests isolated from your machine
+
+```python
+# tests/conftest.py
+def pytest_configure(config):
+    # Runs before test modules are imported
+    os.environ["LIGHTAGENTX_CONFIG"] = str(Path(tempfile.mkdtemp()) / "config.json")
+    os.environ.pop("LIGHTAGENTX_SMARTOS", None)
+```
+
+Without this, a developer who ran `lightx-os --disable` would see the SmartOS tests fail.
+
+---
+
+## Step 13 — Install testing as a real user
+
+The wheel was built and installed into **fresh virtual environments**, not the dev checkout, to catch packaging and compatibility problems:
+
+| Environment | Checked |
 |---|---|
-| Never merged | `git checkout main && git branch -D feature/smartos` |
-| Merged, want to go back to before SmartOS | `python scripts/rollback_smartos.py` (recommended, keeps history) |
-| Throw everything away, local only | `git reset --hard pre-smartos` ⚠ discards later commits too |
+| Python 3.10, base install (no extras) | `import lightagentx`, `from lightagentx import *`, `Sandbox()`, core agents; `lightx-os` prints a clear "install `[os]`" message |
+| Python 3.10, `[os]` with **psutil 5.9.0** (the minimum allowed) | every OS tool |
+| Python 3.13, `[all]`, latest dependencies | every OS tool, the switch, and a full `lightx-os` chat session through the real OpenAI SDK against a local fake server |
+
+What this caught and fixed:
+
+| Problem | Fix |
+|---|---|
+| `process_details` crashed on psutil 5.x (`Process.net_connections` only exists from psutil 6.0) | Fall back to `Process.connections` |
+| `lightx-os` without psutil crashed with a traceback | The launcher checks for psutil and prints how to install it |

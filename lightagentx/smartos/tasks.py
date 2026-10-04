@@ -193,7 +193,9 @@ def make_task_tools(sandbox: Sandbox) -> list[BaseTool]:
                 files = [f.path for f in p.open_files()][:10]
                 if files:
                     info.append("open files: " + ", ".join(files))
-                conns = p.net_connections(kind="inet")[:10]
+                # psutil < 6.0 calls it connections()
+                get_conns = getattr(p, "net_connections", None) or p.connections
+                conns = get_conns(kind="inet")[:10]
                 for c in conns:
                     remote = f"{c.raddr.ip}:{c.raddr.port}" if c.raddr else "-"
                     info.append(f"conn: {c.laddr.ip}:{c.laddr.port} -> {remote} {c.status}")
