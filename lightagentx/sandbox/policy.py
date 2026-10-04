@@ -36,7 +36,7 @@ def _default_deny_paths() -> list[Path]:
         ".config/gcloud", ".config/gh", ".netrc", ".pgpass", ".git-credentials",
         ".password-store", ".local/share/keyrings", ".pki",
         ".mozilla", ".config/google-chrome", ".config/chromium",
-        ".config/BraveSoftware", ".lightx/audit.jsonl",
+        ".config/BraveSoftware", ".lightx/audit.jsonl", ".lightx/config.json",
     ]
     paths = [home / r for r in rel]
     paths += [Path("/etc/shadow"), Path("/etc/gshadow"), Path("/etc/sudoers"), Path("/root")]

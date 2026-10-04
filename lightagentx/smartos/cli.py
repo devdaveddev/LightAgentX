@@ -180,7 +180,16 @@ def main(argv: list[str] | None = None) -> int:
                         help="Force the plain subprocess backend (commands then always need confirmation).")
     parser.add_argument("--quiet", action="store_true", help="Hide routing and tool-call traces.")
     parser.add_argument("--verbose", action="store_true", help="Show full agent reasoning logs.")
+    switch = parser.add_mutually_exclusive_group()
+    switch.add_argument("--enable", action="store_true", help="Turn SmartOS on.")
+    switch.add_argument("--disable", action="store_true",
+                        help="Turn SmartOS off; LightAgentX stays a plain agent framework.")
+    switch.add_argument("--status", action="store_true", help="Show whether SmartOS is on.")
     args = parser.parse_args(argv)
+
+    if args.enable or args.disable or args.status:
+        from ..features import launch_smartos
+        return launch_smartos(["--enable" if args.enable else "--disable" if args.disable else "--status"])
 
     from .os_agent import SmartOS
 

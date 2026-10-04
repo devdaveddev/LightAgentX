@@ -8,6 +8,7 @@ from typing import Any
 
 from ..agents.base import BaseAgent
 from ..agents.single import SingleAgent
+from ..features import require_smartos
 from ..hooks import HookRegistry
 from ..llm.base import BaseLLM
 from ..memory.buffer import BufferMemory
@@ -144,6 +145,7 @@ class SmartOS(BaseAgent):
         max_iterations: int = 12,
         history_turns: int = 6,
     ):
+        require_smartos()  # can be switched off at runtime too
         super().__init__(name="SmartOS", description="Agent-managed operating system")
         if mode not in ("crew", "single"):
             raise ValueError("mode must be 'crew' or 'single'")

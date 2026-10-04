@@ -18,6 +18,6 @@ setup(
         "dev": ["pytest>=7.0.0"],
     },
     entry_points={
-        "console_scripts": ["lightx-os=lightagentx.smartos.cli:main"],
+        "console_scripts": ["lightx-os=lightagentx.features:launch_smartos"],
     },
 )

@@ -1016,7 +1016,24 @@ SmartOS(llm=AnthropicLLM(), sandbox=sandbox).run("tidy up my Downloads folder")
 > **Scope:** file tools, `open_file` and `launch_application` act on your real desktop (that's the point) and are guarded by the policy and confirmations. Shell commands and Python are the parts that run *inside* the isolation. Filename deny-globs are enforced for file tools, not inside bubblewrap.
 
 How it was built, step by step with code: [`docs/smartos-build-log.md`](docs/smartos-build-log.md).
-To remove SmartOS completely: `python scripts/rollback_smartos.py --dry-run`, then run it without `--dry-run`.
+
+### Turning SmartOS off
+
+SmartOS can be switched off at any time. LightAgentX then behaves as a plain agent framework (LLMs, tools, memory, agents, hooks, snapshots) — nothing is uninstalled and your code doesn't change.
+
+```bash
+lightx-os --disable     # off (saved in ~/.lightx/config.json)
+lightx-os --status
+lightx-os --enable      # back on
+LIGHTAGENTX_SMARTOS=0 python app.py    # off for one process only (env beats config)
+```
+
+```python
+import lightagentx
+lightagentx.disable_smartos()   # or enable_smartos(), smartos_enabled(), smartos_status()
+```
+
+While off, `import lightagentx.smartos` and `SmartOS(...)` raise `SmartOSDisabledError`, and `lightx-os` only explains how to re-enable it. Agents cannot read or change this setting (it's on the sandbox deny list).
 
 ---
 
