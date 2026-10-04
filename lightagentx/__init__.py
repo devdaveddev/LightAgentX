@@ -55,6 +55,8 @@ from .agents.crew import CrewAgent
 from .hooks import HookRegistry, HookEvent
 from .snapshot import AgentSnapshot
 
+from .sandbox import Risk, Sandbox, SandboxPolicy, SandboxViolation
+
 from .utils.logger import AgentLogger
 
 __all__ = [
@@ -73,6 +75,8 @@ __all__ = [
     "BaseAgent", "SingleAgent", "SequentialPipeline", "CrewAgent",
     # Hooks & Snapshots
     "HookRegistry", "HookEvent", "AgentSnapshot",
+    # Sandbox (SmartOS lives in lightagentx.smartos — needs the [os] extra)
+    "Risk", "Sandbox", "SandboxPolicy", "SandboxViolation",
     # Utils
     "AgentLogger",
 ]

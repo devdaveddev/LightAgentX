@@ -36,6 +36,8 @@ lightagentx/
 ├── agents/       # SingleAgent, SequentialPipeline, CrewAgent
 ├── hooks.py      # Lifecycle hooks — event-driven middleware
 ├── snapshot.py   # Agent snapshots — portable stateful agents
+├── sandbox/      # Policy, isolation backends (bubblewrap), confirmation, audit
+├── smartos/      # OS-managing agent crew + `lightx-os` chat terminal
 └── utils/        # Colored terminal logger
 ```
 
@@ -947,6 +949,77 @@ print(hooks.registered_events)   # ['after_tool_call', ...]
 
 ---
 
+## Module 11: `sandbox/` + `smartos/` — SmartOS (Agents That Manage Your OS)
+
+### Why it exists
+
+Letting an LLM touch your computer is only acceptable if it **cannot** do damage you didn't approve. SmartOS gives a crew of agents real OS powers (files, task manager, apps, security, shell) while every single action goes through one `Sandbox`.
+
+### Run it
+
+```bash
+pip install "lightagentx[os]"          # adds psutil
+export ANTHROPIC_API_KEY=...           # or OPENAI_API_KEY / GOOGLE_API_KEY
+lightx-os                              # or: python -m lightagentx.smartos
+
+# fully local, nothing leaves your machine:
+lightx-os --base-url http://localhost:11434/v1 --model llama3.1
+```
+
+```
+you › what's eating my RAM?
+  ↳ TaskManager
+  · list_processes(sort_by='memory', limit=10)
+os › Five Java processes use ~3.4GB together; the biggest is PID 145395 (1.1GB)...
+
+you › kill the biggest one
+  ↳ TaskManager
+  · terminate_process(pid=145395)
+⚠ HIGH RISK  terminate: PID 145395 (java)
+Allow? [y/N]
+```
+
+Direct commands that skip the LLM: `/stats`, `/ps`, `/kill PID`, `/scan`, `/apps`, `/policy`, `/audit`, `/reset`.
+
+### The agents
+
+| Agent | Does | Tools |
+|---|---|---|
+| `TaskManager` | CPU/RAM/disk, processes, stop processes | `system_overview`, `list_processes`, `process_details`, `terminate_process` |
+| `FileManager` | browse, search, read, write, open, trash | `list_directory`, `search_files`, `read_file`, `write_file`, `open_file`, `move_to_trash` |
+| `AppManager` | find, launch, close desktop apps | `list_applications`, `launch_application`, `close_application` |
+| `SecurityGuard` | firewall, SELinux/AppArmor, exposed ports, suspicious processes, autostart, credential permissions | `security_scan`, `list_network_connections`, ... |
+| `Operator` | anything else via commands/Python | `run_command`, `run_python` |
+
+A router LLM picks the specialist for each message (and rewrites "kill *it*" into a concrete PID using the conversation). `mode="single"` uses one agent with all tools instead — fewer LLM calls, better for small local models.
+
+### The sandbox — four layers
+
+1. **Policy** (`SandboxPolicy`) — readable/writable paths, a deny list that always wins (`~/.ssh`, `~/.aws`, keyrings, browser profiles, `*.pem`, `.env`...), blocked command patterns (`sudo`, `rm -rf /`, `mkfs`, `curl | sh`...), protected processes (`systemd`, `sshd`, display server...).
+2. **Isolation** (`backends.py`) — on Linux, commands run under **bubblewrap**: read-only filesystem, empty `$HOME` except allowed paths, secrets hidden, private `/tmp` and `/run` (no D-Bus/Wayland/X11 sockets), private PID namespace, **no network** unless `--network`, rlimits on memory/CPU/file size, API keys stripped from the environment. Only `~/.lightx/workspace` is writable. Elsewhere `SubprocessBackend` is used and every command needs approval.
+3. **Risk + confirmation** — every action is `LOW` / `MEDIUM` / `HIGH`. At or above `confirm_at` the human is asked; with no human attached (`deny_all`, the library default) risky actions are refused. Deletes go to a recoverable trash.
+4. **Audit** — every allow/approve/decline/block lands in `sandbox.audit_log` and `~/.lightx/audit.jsonl` (which agents can't read).
+
+When the sandbox says no, the agent receives `Error: ... SandboxViolation: <reason>` as the tool result and is instructed not to work around it.
+
+```python
+from lightagentx import AnthropicLLM, Risk, Sandbox, SandboxPolicy
+from lightagentx.smartos import SmartOS
+
+sandbox = Sandbox(
+    policy=SandboxPolicy(write_paths=["~/Documents"], confirm_at=Risk.HIGH),
+    confirmer=lambda description, risk: input(f"{description}? [y/N] ") == "y",
+)
+SmartOS(llm=AnthropicLLM(), sandbox=sandbox).run("tidy up my Downloads folder")
+```
+
+> **Scope:** file tools, `open_file` and `launch_application` act on your real desktop (that's the point) and are guarded by the policy and confirmations. Shell commands and Python are the parts that run *inside* the isolation. Filename deny-globs are enforced for file tools, not inside bubblewrap.
+
+How it was built, step by step with code: [`docs/smartos-build-log.md`](docs/smartos-build-log.md).
+To remove SmartOS completely: `python scripts/rollback_smartos.py --dry-run`, then run it without `--dry-run`.
+
+---
+
 ## LangChain Equivalence Map
 
 | LightAgentX | LangChain |
@@ -965,3 +1038,4 @@ print(hooks.registered_events)   # ['after_tool_call', ...]
 | `CrewAgent` | CrewAI `Crew(process=Process.hierarchical)` |
 | `HookRegistry` | LangChain Callbacks / `BaseCallbackHandler` |
 | `AgentSnapshot` | No equivalent (manual serialization needed) |
+| `Sandbox` / `SmartOS` | No equivalent (LangChain's `ShellTool` runs unsandboxed) |
