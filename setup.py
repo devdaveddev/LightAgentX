@@ -13,7 +13,11 @@ setup(
     extras_require={
         "anthropic": ["anthropic>=0.30.0"],
         "gemini": ["google-genai>=1.0.0"],
-        "all": ["anthropic>=0.30.0", "google-genai>=1.0.0"],
+        "os": ["psutil>=5.9.0"],
+        "all": ["anthropic>=0.30.0", "google-genai>=1.0.0", "psutil>=5.9.0"],
         "dev": ["pytest>=7.0.0"],
+    },
+    entry_points={
+        "console_scripts": ["lightx-os=lightagentx.features:launch_smartos"],
     },
 )
