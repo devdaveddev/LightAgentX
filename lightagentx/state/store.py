@@ -188,6 +188,7 @@ class VersionStore:
     def __init__(self, root: str | Path):
         self.root = Path(root).expanduser().resolve()
         (self.root / "objects").mkdir(parents=True, exist_ok=True)
+        self._parents: dict[str, tuple[str, ...]] = {}
         (self.root / "agents").mkdir(parents=True, exist_ok=True)
 
     # ── objects ───────────────────────────────────────────────────────────
@@ -279,16 +280,29 @@ class VersionStore:
 
     # ── history ───────────────────────────────────────────────────────────
 
+    def parents(self, vid: str) -> tuple[str, ...]:
+        """Parent ids of a version. Cached: versions are immutable."""
+        cached = self._parents.get(vid)
+        if cached is None:
+            cached = self._parents[vid] = self.get(vid, verify=False).parents
+        return cached
+
     def ancestors(self, vid: str) -> dict[str, int]:
-        """All ancestors of a version (inclusive) with their distance."""
-        seen: dict[str, int] = {}
-        frontier = [(vid, 0)]
-        while frontier:
-            v, d = frontier.pop()
-            if v in seen and seen[v] <= d:
-                continue
-            seen[v] = d
-            frontier.extend((p, d + 1) for p in self.get(v, verify=False).parents)
+        """All ancestors of a version (inclusive) with their shortest distance.
+
+        Breadth-first, so each version is expanded exactly once even when the
+        history contains many merges.
+        """
+        from collections import deque
+
+        seen: dict[str, int] = {vid: 0}
+        queue = deque([vid])
+        while queue:
+            v = queue.popleft()
+            for p in self.parents(v):
+                if p not in seen:
+                    seen[p] = seen[v] + 1
+                    queue.append(p)
         return seen
 
     def merge_base(self, a: str, b: str) -> str | None:

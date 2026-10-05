@@ -100,6 +100,22 @@ Every access decision, including denials, is written to `audit.jsonl`. Only `adm
 
 ---
 
+## Evaluation
+
+Full method, fairness notes and tables: [`evals/README.md`](../evals/README.md) → [`evals/results/REPORT.md`](../evals/results/REPORT.md). All of it is reproducible with seeded scripts.
+
+| Claim | Result |
+|---|---|
+| No lost updates under concurrent processes | **0 silently lost** at every concurrency level (1–12 processes). Open-source LangGraph (SQLite checkpointer, one `thread_id`) silently dropped **75%** of updates at 12 processes, and **80%** at 8 processes with 500 ms sessions |
+| Merge beats queueing for real sessions | With 500 ms sessions at 8 processes: merge **14 ops/s**, p95 0.52 s; reproduced "enqueue" 2 ops/s, p95 15.6 s. With near-instant sessions, enqueue is *faster*, so the advantage only appears when sessions do real work |
+| Merging recovers parallel work | The fact learned in the conflicting session: **30/30** after `append` or `digest`, **0/30** without a merge (perfect-recall reader and qwen2.5:3b alike) |
+| Redacted execution prevents leakage | Card number and API key: **0% exposure** and 0% leakage under 12 extraction attacks, for any model (a worst-case leaker included). A "never reveal" system prompt alone: qwen2.5:3b leaked the card in **35%** of attacks |
+| Known gap, measured | A secret in plain prose isn't caught by pattern redaction: 100% exposure, 13% leakage. Use `private_keys` |
+
+The evaluation also found and fixed a performance bug. Finding the common ancestor walked the history depth-first and re-visited versions after many merges, giving p95 2.1 s at 12 processes. Breadth-first search with cached parent links brought it to about 130 ms.
+
+---
+
 ## Limitations (honest)
 
 - **Principals are names, not authenticated identities.** Anyone who can write to the registry directory can claim any principal. This prototype is for cooperating processes on one machine or shared filesystem; real authentication needs a server in front of it.

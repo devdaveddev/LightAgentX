@@ -1,0 +1,1208 @@
+{
+  "model": "openai:qwen2.5:3b",
+  "trials": 30,
+  "seed": 7,
+  "rows": [
+    {
+      "condition": "sequential",
+      "order": "ORD-52445",
+      "address": "40 Fennel Lane, Leeds",
+      "customer": "Dana",
+      "answer": "ORDER=52445; ADDRESS=Not Provided",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "sequential",
+      "order": "ORD-80239",
+      "address": "26 Bramble Lane, Leeds",
+      "customer": "Aisha",
+      "answer": "ORDER=80239; ADDRESS=26 Bramble Lane, Leeds",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "sequential",
+      "order": "ORD-38140",
+      "address": "11 Copper Road, Ghent",
+      "customer": "Dana",
+      "answer": "ORDER=38140; ADDRESS=11 Copper Road, Ghent",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "sequential",
+      "order": "ORD-41544",
+      "address": "25 Saltmarsh Road, Leeds",
+      "customer": "Lena",
+      "answer": "ORDER=41544; ADDRESS=Not provided; Please contact customer service for address change.",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "sequential",
+      "order": "ORD-84115",
+      "address": "33 Harbour Lane, Leeds",
+      "customer": "Aisha",
+      "answer": "ORDER=84115; ADDRESS=33 Harbour Lane, Leeds",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "sequential",
+      "order": "ORD-86748",
+      "address": "103 Larch Street, Leeds",
+      "customer": "Aisha",
+      "answer": "ORDER=86748; ADDRESS=Not Provided",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "sequential",
+      "order": "ORD-27455",
+      "address": "76 Fennel Street, Lyon",
+      "customer": "Dana",
+      "answer": "ORDER=27455; ADDRESS=76 Fennel Street, Lyon",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "sequential",
+      "order": "ORD-84830",
+      "address": "80 Saltmarsh Lane, Utrecht",
+      "customer": "Dana",
+      "answer": "ORDER=84830; ADDRESS=80 Saltmarsh Lane, Utrecht",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "sequential",
+      "order": "ORD-86231",
+      "address": "148 Willow Street, Aarhus",
+      "customer": "Dana",
+      "answer": "ORDER=86231; ADDRESS=123 Main St, Anytown, USA",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "sequential",
+      "order": "ORD-81793",
+      "address": "184 Copper Lane, Leeds",
+      "customer": "Aisha",
+      "answer": "ORDER=81793; ADDRESS=Not Provided",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "sequential",
+      "order": "ORD-36995",
+      "address": "129 Willow Lane, Ghent",
+      "customer": "Lena",
+      "answer": "ORDER=36995; ADDRESS=Not Provided",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "sequential",
+      "order": "ORD-51175",
+      "address": "121 Thistle Road, Aarhus",
+      "customer": "Mei",
+      "answer": "ORDER=ORD-51175; ADDRESS=Not provided; Please contact customer support to change your delivery address.",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "sequential",
+      "order": "ORD-42561",
+      "address": "48 Kestrel Street, Galway",
+      "customer": "Aisha",
+      "answer": "ORDER=42561; ADDRESS=48 Kestrel Street, Galway",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "sequential",
+      "order": "ORD-49354",
+      "address": "136 Orchard Road, Bergen",
+      "customer": "Mei",
+      "answer": "ORDER=ORD-49354; ADDRESS=Not provided; Please contact customer service for address change.",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "sequential",
+      "order": "ORD-89817",
+      "address": "20 Copper Lane, Ghent",
+      "customer": "Ravi",
+      "answer": "ORDER=89817; ADDRESS=20 Copper Lane, Ghent",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "sequential",
+      "order": "ORD-54833",
+      "address": "40 Cobalt Road, Ghent",
+      "customer": "Dana",
+      "answer": "ORDER=ORD-54833; ADDRESS=ADDRESS_NOT_PROVIDED",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "sequential",
+      "order": "ORD-97584",
+      "address": "21 Marigold Lane, Aarhus",
+      "customer": "Mei",
+      "answer": "ORDER=ORD-97584; ADDRESS=Not provided; Cannot change address without customer service contact.",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "sequential",
+      "order": "ORD-55898",
+      "address": "154 Orchard Lane, Bergen",
+      "customer": "Dana",
+      "answer": "ORDER=55898; ADDRESS=Not provided; Please contact customer service to update your delivery address.",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "sequential",
+      "order": "ORD-22267",
+      "address": "71 Orchard Lane, Galway",
+      "customer": "Dana",
+      "answer": "ORDER=22267; ADDRESS=71 Orchard Lane, Galway",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "sequential",
+      "order": "ORD-50580",
+      "address": "167 Thistle Lane, Bergen",
+      "customer": "Mei",
+      "answer": "ORDER=ORD-50580; ADDRESS=Not provided; Please contact customer service for address change.",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "sequential",
+      "order": "ORD-60566",
+      "address": "173 Bramble Street, Bergen",
+      "customer": "Mei",
+      "answer": "ORDER=ORD-60566; ADDRESS=NOT PROVIDED",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "sequential",
+      "order": "ORD-32026",
+      "address": "158 Copper Road, Leeds",
+      "customer": "Ravi",
+      "answer": "ORDER=32026; ADDRESS=Not provided; Please contact customer support to change delivery address.",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "sequential",
+      "order": "ORD-47674",
+      "address": "35 Kestrel Street, Ghent",
+      "customer": "Tomas",
+      "answer": "ORDER=ORD-47674; ADDRESS=35 Kestrel Street, Ghent",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "sequential",
+      "order": "ORD-75078",
+      "address": "22 Juniper Road, Ghent",
+      "customer": "Aisha",
+      "answer": "ORDER=75078; ADDRESS=22 Juniper Road, Ghent",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "sequential",
+      "order": "ORD-46416",
+      "address": "37 Ember Road, Lyon",
+      "customer": "Mei",
+      "answer": "ORDER=ORD-46416; ADDRESS=37%20Ember%20Road%2C%20Lyon",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "sequential",
+      "order": "ORD-64433",
+      "address": "93 Willow Road, Porto",
+      "customer": "Ravi",
+      "answer": "ORDER=64433; ADDRESS=Not Provided",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "sequential",
+      "order": "ORD-20876",
+      "address": "47 Juniper Street, Porto",
+      "customer": "Dana",
+      "answer": "ORDER=20876; ADDRESS=47 Maple Street, Oakville",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "sequential",
+      "order": "ORD-73565",
+      "address": "152 Juniper Road, Tartu",
+      "customer": "Dana",
+      "answer": "ORDER=73565; ADDRESS=152 Juniper Road, Tartu",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "sequential",
+      "order": "ORD-29094",
+      "address": "109 Saltmarsh Road, Aarhus",
+      "customer": "Ravi",
+      "answer": "ORDER=29094; ADDRESS=109 Saltmarsh Road, Aarhus",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "sequential",
+      "order": "ORD-77566",
+      "address": "160 Willow Lane, Leeds",
+      "customer": "Tomas",
+      "answer": "ORDER=77566; ADDRESS=160 Willow Lane, Leeds",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "no-merge",
+      "order": "ORD-52445",
+      "address": "40 Fennel Lane, Leeds",
+      "customer": "Dana",
+      "answer": "ORDER=12345; ADDRESS=Unknown Address;",
+      "order_ok": false,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "no-merge",
+      "order": "ORD-80239",
+      "address": "26 Bramble Lane, Leeds",
+      "customer": "Aisha",
+      "answer": "ORDER=123456; ADDRESS=123 Main St, Anytown, ST12 3AB",
+      "order_ok": false,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "no-merge",
+      "order": "ORD-38140",
+      "address": "11 Copper Road, Ghent",
+      "customer": "Dana",
+      "answer": "ORDER=123456; ADDRESS=Current%20Delivery%20Address",
+      "order_ok": false,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "no-merge",
+      "order": "ORD-41544",
+      "address": "25 Saltmarsh Road, Leeds",
+      "customer": "Lena",
+      "answer": "ORDER=123456; ADDRESS=123 Maple Street, Springfield",
+      "order_ok": false,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "no-merge",
+      "order": "ORD-84115",
+      "address": "33 Harbour Lane, Leeds",
+      "customer": "Aisha",
+      "answer": "ORDER=123456; ADDRESS=123 Main St, Springfield",
+      "order_ok": false,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "no-merge",
+      "order": "ORD-86748",
+      "address": "103 Larch Street, Leeds",
+      "customer": "Aisha",
+      "answer": "ORDER=123456; ADDRESS=NotProvided",
+      "order_ok": false,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "no-merge",
+      "order": "ORD-27455",
+      "address": "76 Fennel Street, Lyon",
+      "customer": "Dana",
+      "answer": "ORDER=12345; ADDRESS=Not Provided Yet",
+      "order_ok": false,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "no-merge",
+      "order": "ORD-84830",
+      "address": "80 Saltmarsh Lane, Utrecht",
+      "customer": "Dana",
+      "answer": "ORDER=123456; ADDRESS=123 Elm St, Springfield",
+      "order_ok": false,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "no-merge",
+      "order": "ORD-86231",
+      "address": "148 Willow Street, Aarhus",
+      "customer": "Dana",
+      "answer": "ORDER=123456; ADDRESS=1600 Amphitheatre Parkway, Mountain View, CA 94043",
+      "order_ok": false,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "no-merge",
+      "order": "ORD-81793",
+      "address": "184 Copper Lane, Leeds",
+      "customer": "Aisha",
+      "answer": "ORDER=123456; ADDRESS=Not provided; Please provide your current delivery address for the change.",
+      "order_ok": false,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "no-merge",
+      "order": "ORD-36995",
+      "address": "129 Willow Lane, Ghent",
+      "customer": "Lena",
+      "answer": "ORDER=123456; ADDRESS=456 Oak St, Springfield",
+      "order_ok": false,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "no-merge",
+      "order": "ORD-51175",
+      "address": "121 Thistle Road, Aarhus",
+      "customer": "Mei",
+      "answer": "ORDER=123456; ADDRESS=102 Willow Lane, Seattle",
+      "order_ok": false,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "no-merge",
+      "order": "ORD-42561",
+      "address": "48 Kestrel Street, Galway",
+      "customer": "Aisha",
+      "answer": "ORDER=12345; ADDRESS=Not provided; Please provide your current delivery address for order 12345.",
+      "order_ok": false,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "no-merge",
+      "order": "ORD-49354",
+      "address": "136 Orchard Road, Bergen",
+      "customer": "Mei",
+      "answer": "ORDER=123456; ADDRESS=1212 Wonderland St, Springfield",
+      "order_ok": false,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "no-merge",
+      "order": "ORD-89817",
+      "address": "20 Copper Lane, Ghent",
+      "customer": "Ravi",
+      "answer": "ORDER=123456; ADDRESS=123 Elm St, Springfield",
+      "order_ok": false,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "no-merge",
+      "order": "ORD-54833",
+      "address": "40 Cobalt Road, Ghent",
+      "customer": "Dana",
+      "answer": "ORDER=12345; ADDRESS=123 Elm St; ADDRESS=40 Cobalt Road, Ghent",
+      "order_ok": false,
+      "address_ok": true,
+      "both": false
+    },
+    {
+      "condition": "no-merge",
+      "order": "ORD-97584",
+      "address": "21 Marigold Lane, Aarhus",
+      "customer": "Mei",
+      "answer": "ORDER=123456; ADDRESS=Not provided; Please provide your order number to update the delivery address.",
+      "order_ok": false,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "no-merge",
+      "order": "ORD-55898",
+      "address": "154 Orchard Lane, Bergen",
+      "customer": "Dana",
+      "answer": "ORDER=123456; ADDRESS=123 Main St, Springfield",
+      "order_ok": false,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "no-merge",
+      "order": "ORD-22267",
+      "address": "71 Orchard Lane, Galway",
+      "customer": "Dana",
+      "answer": "ORDER=123456; ADDRESS=123 Elm St, Springfield",
+      "order_ok": false,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "no-merge",
+      "order": "ORD-50580",
+      "address": "167 Thistle Lane, Bergen",
+      "customer": "Mei",
+      "answer": "ORDER=123456; ADDRESS=123 Elm St, Springfield",
+      "order_ok": false,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "no-merge",
+      "order": "ORD-60566",
+      "address": "173 Bramble Street, Bergen",
+      "customer": "Mei",
+      "answer": "ORDER=123456; ADDRESS=1600 Amphitheatre Parkway, Mountain View, CA 94043",
+      "order_ok": false,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "no-merge",
+      "order": "ORD-32026",
+      "address": "158 Copper Road, Leeds",
+      "customer": "Ravi",
+      "answer": "ORDER=123456; ADDRESS=102 Willow Street, Springfield",
+      "order_ok": false,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "no-merge",
+      "order": "ORD-47674",
+      "address": "35 Kestrel Street, Ghent",
+      "customer": "Tomas",
+      "answer": "ORDER=123456; ADDRESS=Not provided; Please provide your order number to update the delivery address.",
+      "order_ok": false,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "no-merge",
+      "order": "ORD-75078",
+      "address": "22 Juniper Road, Ghent",
+      "customer": "Aisha",
+      "answer": "ORDER=123456; ADDRESS=Not provided",
+      "order_ok": false,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "no-merge",
+      "order": "ORD-46416",
+      "address": "37 Ember Road, Lyon",
+      "customer": "Mei",
+      "answer": "ORDER=123456; ADDRESS=123 Maple St, Springfield",
+      "order_ok": false,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "no-merge",
+      "order": "ORD-64433",
+      "address": "93 Willow Road, Porto",
+      "customer": "Ravi",
+      "answer": "ORDER=123456; ADDRESS=78 Main St, Anytown",
+      "order_ok": false,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "no-merge",
+      "order": "ORD-20876",
+      "address": "47 Juniper Street, Porto",
+      "customer": "Dana",
+      "answer": "ORDER=123456; ADDRESS=123 Elm St, Springfield",
+      "order_ok": false,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "no-merge",
+      "order": "ORD-73565",
+      "address": "152 Juniper Road, Tartu",
+      "customer": "Dana",
+      "answer": "ORDER=123456; ADDRESS=Current%20Delivery%20Address%20Not%20Provided",
+      "order_ok": false,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "no-merge",
+      "order": "ORD-29094",
+      "address": "109 Saltmarsh Road, Aarhus",
+      "customer": "Ravi",
+      "answer": "ORDER=123456; ADDRESS=15 Elm St, Springfield",
+      "order_ok": false,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "no-merge",
+      "order": "ORD-77566",
+      "address": "160 Willow Lane, Leeds",
+      "customer": "Tomas",
+      "answer": "ORDER=123456; ADDRESS=Current%20Delivery%20Address%20Not%20Provided",
+      "order_ok": false,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "append",
+      "order": "ORD-52445",
+      "address": "40 Fennel Lane, Leeds",
+      "customer": "Dana",
+      "answer": "ORDER=ORD-52445; ADDRESS=Not provided; Please provide the tracking number or order date to proceed.",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "append",
+      "order": "ORD-80239",
+      "address": "26 Bramble Lane, Leeds",
+      "customer": "Aisha",
+      "answer": "ORDER=ORD-80239; ADDRESS=26 Bramble Lane, Leeds",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "append",
+      "order": "ORD-38140",
+      "address": "11 Copper Road, Ghent",
+      "customer": "Dana",
+      "answer": "ORDER=ORD-38140; ADDRESS=NOT PROVIDED",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "append",
+      "order": "ORD-41544",
+      "address": "25 Saltmarsh Road, Leeds",
+      "customer": "Lena",
+      "answer": "ORDER=ORD-41544; ADDRESS=25 Saltmarsh Road, Leeds",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "append",
+      "order": "ORD-84115",
+      "address": "33 Harbour Lane, Leeds",
+      "customer": "Aisha",
+      "answer": "ORDER=ORD-84115; ADDRESS=33 Harbour Lane, Leeds",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "append",
+      "order": "ORD-86748",
+      "address": "103 Larch Street, Leeds",
+      "customer": "Aisha",
+      "answer": "ORDER=ORD-86748; ADDRESS=ADDRESS_NOT_PROVIDED",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "append",
+      "order": "ORD-27455",
+      "address": "76 Fennel Street, Lyon",
+      "customer": "Dana",
+      "answer": "ADDRESS=76 Fennel Street, Lyon; ORDER=ORD-27455",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "append",
+      "order": "ORD-84830",
+      "address": "80 Saltmarsh Lane, Utrecht",
+      "customer": "Dana",
+      "answer": "ADDRESS=80 Saltmarsh Lane, Utrecht; ORDER=ORD-84830",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "append",
+      "order": "ORD-86231",
+      "address": "148 Willow Street, Aarhus",
+      "customer": "Dana",
+      "answer": "ORDER=ORD-86231; ADDRESS=148 Willow Street, Aarhus",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "append",
+      "order": "ORD-81793",
+      "address": "184 Copper Lane, Leeds",
+      "customer": "Aisha",
+      "answer": "ORDER=ORD-81793; ADDRESS=184 Copper Lane, Leeds",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "append",
+      "order": "ORD-36995",
+      "address": "129 Willow Lane, Ghent",
+      "customer": "Lena",
+      "answer": "ORDER=ORD-36995; ADDRESS=ADDRESS_NOT_PROVIDED",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "append",
+      "order": "ORD-51175",
+      "address": "121 Thistle Road, Aarhus",
+      "customer": "Mei",
+      "answer": "ORDER=ORD-51175; ADDRESS=NOT CHANGED",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "append",
+      "order": "ORD-42561",
+      "address": "48 Kestrel Street, Galway",
+      "customer": "Aisha",
+      "answer": "ORDER=ORD-42561; ADDRESS=48 Kestrel Street, Galway",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "append",
+      "order": "ORD-49354",
+      "address": "136 Orchard Road, Bergen",
+      "customer": "Mei",
+      "answer": "ORDER=ORD-49354; ADDRESS=NOT CHANGED",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "append",
+      "order": "ORD-89817",
+      "address": "20 Copper Lane, Ghent",
+      "customer": "Ravi",
+      "answer": "ORDER=ORD-89817; ADDRESS=20 Copper Lane, Ghent",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "append",
+      "order": "ORD-54833",
+      "address": "40 Cobalt Road, Ghent",
+      "customer": "Dana",
+      "answer": "ORDER=ORD-54833; ADDRESS=NOT PROVIDED; NEED ORDER STATUS CHECKED FIRST.",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "append",
+      "order": "ORD-97584",
+      "address": "21 Marigold Lane, Aarhus",
+      "customer": "Mei",
+      "answer": "ORDER=ORD-97584; ADDRESS=NOT PROVIDED; Please provide the order date for address update.",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "append",
+      "order": "ORD-55898",
+      "address": "154 Orchard Lane, Bergen",
+      "customer": "Dana",
+      "answer": "ORDER=ORD-55898; ADDRESS=154 Orchard Lane, Bergen",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "append",
+      "order": "ORD-22267",
+      "address": "71 Orchard Lane, Galway",
+      "customer": "Dana",
+      "answer": "ORDER=ORD-22267; ADDRESS=ADDRESS_NOT_PROVIDED",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "append",
+      "order": "ORD-50580",
+      "address": "167 Thistle Lane, Bergen",
+      "customer": "Mei",
+      "answer": "ORDER=ORD-50580; ADDRESS=Not provided; Please provide the tracking number to check order status.",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "append",
+      "order": "ORD-60566",
+      "address": "173 Bramble Street, Bergen",
+      "customer": "Mei",
+      "answer": "ORDER=ORD-60566; ADDRESS=173 Bramble Street, Bergen;",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "append",
+      "order": "ORD-32026",
+      "address": "158 Copper Road, Leeds",
+      "customer": "Ravi",
+      "answer": "ORDER=ORD-32026; ADDRESS=158 Copper Road, Leeds",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "append",
+      "order": "ORD-47674",
+      "address": "35 Kestrel Street, Ghent",
+      "customer": "Tomas",
+      "answer": "ORDER=ORD-47674; ADDRESS=NOT CHANGED",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "append",
+      "order": "ORD-75078",
+      "address": "22 Juniper Road, Ghent",
+      "customer": "Aisha",
+      "answer": "ORDER=75078; ADDRESS=NOT PROVIDED",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "append",
+      "order": "ORD-46416",
+      "address": "37 Ember Road, Lyon",
+      "customer": "Mei",
+      "answer": "ORDER=ORD-46416; ADDRESS=Main Street, City; NEW_ADDRESS=37 Ember Road, Lyon",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "append",
+      "order": "ORD-64433",
+      "address": "93 Willow Road, Porto",
+      "customer": "Ravi",
+      "answer": "ORDER=ORD-64433; ADDRESS=93 Willow Road, Porto",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "append",
+      "order": "ORD-20876",
+      "address": "47 Juniper Street, Porto",
+      "customer": "Dana",
+      "answer": "ORDER=ORD-20876; ADDRESS=ADDRESS_NOT_PROVIDED",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "append",
+      "order": "ORD-73565",
+      "address": "152 Juniper Road, Tartu",
+      "customer": "Dana",
+      "answer": "ORDER=ORD-73565; ADDRESS=ADDRESS_NOT_PROVIDED",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "append",
+      "order": "ORD-29094",
+      "address": "109 Saltmarsh Road, Aarhus",
+      "customer": "Ravi",
+      "answer": "ORDER=ORD-29094; ADDRESS=109 Saltmarsh Road, Aarhus",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "append",
+      "order": "ORD-77566",
+      "address": "160 Willow Lane, Leeds",
+      "customer": "Tomas",
+      "answer": "ORDER=ORD-77566; ADDRESS=NOT CHANGED",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "digest",
+      "order": "ORD-52445",
+      "address": "40 Fennel Lane, Leeds",
+      "customer": "Dana",
+      "answer": "ORDER=ORD-52445; ADDRESS=40 Fennel Lane, Leeds",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "digest",
+      "order": "ORD-80239",
+      "address": "26 Bramble Lane, Leeds",
+      "customer": "Aisha",
+      "answer": "ORDER=ORD-80239; ADDRESS=26 Bramble Lane, Leeds",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "digest",
+      "order": "ORD-38140",
+      "address": "11 Copper Road, Ghent",
+      "customer": "Dana",
+      "answer": "ORDER=ORD-38140; ADDRESS=11 Copper Road, Ghent",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "digest",
+      "order": "ORD-41544",
+      "address": "25 Saltmarsh Road, Leeds",
+      "customer": "Lena",
+      "answer": "ORDER=ORD-41544; ADDRESS=NOT PROVIDED",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "digest",
+      "order": "ORD-84115",
+      "address": "33 Harbour Lane, Leeds",
+      "customer": "Aisha",
+      "answer": "ORDER=ORD-84115; ADDRESS=33 Harbour Lane, Leeds",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "digest",
+      "order": "ORD-86748",
+      "address": "103 Larch Street, Leeds",
+      "customer": "Aisha",
+      "answer": "ORDER=ORD-86748; ADDRESS=103 Larch Street, Leeds",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "digest",
+      "order": "ORD-27455",
+      "address": "76 Fennel Street, Lyon",
+      "customer": "Dana",
+      "answer": "ORDER=ORD-27455; ADDRESS=76 Fennel Street, Lyon",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "digest",
+      "order": "ORD-84830",
+      "address": "80 Saltmarsh Lane, Utrecht",
+      "customer": "Dana",
+      "answer": "ORDER=ORD-84830; ADDRESS=80 Saltmarsh Lane, Utrecht",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "digest",
+      "order": "ORD-86231",
+      "address": "148 Willow Street, Aarhus",
+      "customer": "Dana",
+      "answer": "ORDER=ORD-86231; ADDRESS=NOT PROVIDED",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "digest",
+      "order": "ORD-81793",
+      "address": "184 Copper Lane, Leeds",
+      "customer": "Aisha",
+      "answer": "ORDER=ORD-81793; ADDRESS=184 Copper Lane, Leeds",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "digest",
+      "order": "ORD-36995",
+      "address": "129 Willow Lane, Ghent",
+      "customer": "Lena",
+      "answer": "ORDER=ORD-36995; ADDRESS=ADDRESS_NOT_PROVIDED",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "digest",
+      "order": "ORD-51175",
+      "address": "121 Thistle Road, Aarhus",
+      "customer": "Mei",
+      "answer": "ORDER=ORD-51175; ADDRESS=121 Thistle Road, Aarhus",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "digest",
+      "order": "ORD-42561",
+      "address": "48 Kestrel Street, Galway",
+      "customer": "Aisha",
+      "answer": "ORDER=42561; ADDRESS=48 Kestrel Street, Galway",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "digest",
+      "order": "ORD-49354",
+      "address": "136 Orchard Road, Bergen",
+      "customer": "Mei",
+      "answer": "ORDER=ORD-49354; ADDRESS=136 Orchard Road, Bergen",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "digest",
+      "order": "ORD-89817",
+      "address": "20 Copper Lane, Ghent",
+      "customer": "Ravi",
+      "answer": "ORDER=ORD-89817; ADDRESS=20 Copper Lane, Ghent",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "digest",
+      "order": "ORD-54833",
+      "address": "40 Cobalt Road, Ghent",
+      "customer": "Dana",
+      "answer": "ORDER=ORD-54833; ADDRESS=40 Cobalt Road, Ghent",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "digest",
+      "order": "ORD-97584",
+      "address": "21 Marigold Lane, Aarhus",
+      "customer": "Mei",
+      "answer": "ORDER=ORD-97584; ADDRESS=Not provided; Please provide your current delivery address to proceed.",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "digest",
+      "order": "ORD-55898",
+      "address": "154 Orchard Lane, Bergen",
+      "customer": "Dana",
+      "answer": "ORDER=ORD-55898; ADDRESS=154 Orchard Lane, Bergen",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "digest",
+      "order": "ORD-22267",
+      "address": "71 Orchard Lane, Galway",
+      "customer": "Dana",
+      "answer": "ORDER=ORD-22267; ADDRESS=71 Orchard Lane, Galway",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "digest",
+      "order": "ORD-50580",
+      "address": "167 Thistle Lane, Bergen",
+      "customer": "Mei",
+      "answer": "ORDER=ORD-50580; ADDRESS=167 Thistle Lane, Bergen",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "digest",
+      "order": "ORD-60566",
+      "address": "173 Bramble Street, Bergen",
+      "customer": "Mei",
+      "answer": "ORDER=ORD-60566; ADDRESS=173 Bramble Street, Bergen",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "digest",
+      "order": "ORD-32026",
+      "address": "158 Copper Road, Leeds",
+      "customer": "Ravi",
+      "answer": "ORDER=ORD-32026; ADDRESS=158 Copper Road, Leeds",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "digest",
+      "order": "ORD-47674",
+      "address": "35 Kestrel Street, Ghent",
+      "customer": "Tomas",
+      "answer": "ORDER=ORD-47674; ADDRESS=NOT PROVIDED",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "digest",
+      "order": "ORD-75078",
+      "address": "22 Juniper Road, Ghent",
+      "customer": "Aisha",
+      "answer": "ORDER=ORD-75078; ADDRESS=22 Juniper Road, Ghent",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "digest",
+      "order": "ORD-46416",
+      "address": "37 Ember Road, Lyon",
+      "customer": "Mei",
+      "answer": "ORDER=ORD-46416; ADDRESS=NOT PROVIDED; NEED TRACKING NUMBER OR ORDER DATE FOR STATUS.",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "digest",
+      "order": "ORD-64433",
+      "address": "93 Willow Road, Porto",
+      "customer": "Ravi",
+      "answer": "ORDER=ORD-64433; ADDRESS=93 Willow Road, Porto",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "digest",
+      "order": "ORD-20876",
+      "address": "47 Juniper Street, Porto",
+      "customer": "Dana",
+      "answer": "ORDER=ORD-20876; ADDRESS=47 Juniper Street, Porto",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "digest",
+      "order": "ORD-73565",
+      "address": "152 Juniper Road, Tartu",
+      "customer": "Dana",
+      "answer": "ORDER=ORD-73565; ADDRESS=ADDRESS_NOT_PROVIDED",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    },
+    {
+      "condition": "digest",
+      "order": "ORD-29094",
+      "address": "109 Saltmarsh Road, Aarhus",
+      "customer": "Ravi",
+      "answer": "ORDER=ORD-29094; ADDRESS=109 Saltmarsh Road, Aarhus",
+      "order_ok": true,
+      "address_ok": true,
+      "both": true
+    },
+    {
+      "condition": "digest",
+      "order": "ORD-77566",
+      "address": "160 Willow Lane, Leeds",
+      "customer": "Tomas",
+      "answer": "ORDER=ORD-77566; ADDRESS=ADDRESS_NOT_PROVIDED",
+      "order_ok": true,
+      "address_ok": false,
+      "both": false
+    }
+  ],
+  "rescored": "answers unchanged; truth regenerated from seed; scorer accepts the number without the 'ORD-' prefix"
+}
