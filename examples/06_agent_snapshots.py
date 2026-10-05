@@ -5,7 +5,7 @@ Example 6: Agent Snapshots — Portable Stateful Agents
 Demonstrates how to export an agent with its full state (memory, config,
 tool manifest) and import it into a different context — like Docker for agents.
 
-No other lightweight agent framework offers this!
+For shared, versioned agents across processes, see example 09 (AgentRegistry).
 """
 
 from lightagentx import OpenAILLM, SingleAgent, AgentSnapshot, tool
