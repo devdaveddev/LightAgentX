@@ -43,7 +43,8 @@ class SingleAgent(BaseAgent):
         super().__init__(name=name, description=description)
         self.llm = llm
         self.tools = tools or []
-        self.memory = memory or BufferMemory(max_messages=50)
+        # `is not None`: an empty memory has len() == 0 and would be falsy
+        self.memory = memory if memory is not None else BufferMemory(max_messages=50)
         self.system_prompt = system_prompt
         self.max_iterations = max_iterations
         self.verbose = verbose

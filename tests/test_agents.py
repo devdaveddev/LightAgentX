@@ -3,6 +3,7 @@
 from lightagentx.llm.base import BaseLLM, LLMResponse
 from lightagentx.tools.base import tool
 from lightagentx.agents.single import SingleAgent
+from lightagentx.memory.buffer import BufferMemory
 from lightagentx.agents.sequential import SequentialPipeline
 
 
@@ -79,3 +80,12 @@ class TestSequentialPipeline:
         result = pipeline.run("Write about AI")
         # The final result should be from the last agent
         assert "Article" in result or "revolutionary" in result
+
+
+def test_empty_custom_memory_is_used_not_replaced():
+    """Regression: `memory or BufferMemory()` discarded empty memories (len() == 0)."""
+    mem = BufferMemory(max_messages=1000)
+    agent = SingleAgent(name="Bot", llm=MockLLM(["hi"]), memory=mem, verbose=False)
+    assert agent.memory is mem
+    agent.run("hello")
+    assert [m["content"] for m in mem.get_messages() if m["role"] != "system"] == ["hello", "hi"]
