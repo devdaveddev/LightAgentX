@@ -38,6 +38,7 @@ lightagentx/
 ├── snapshot.py   # Agent snapshots — portable stateful agents
 ├── sandbox/      # Policy, isolation backends (bubblewrap), confirmation, audit
 ├── smartos/      # OS-managing agent crew + `lightx-os` chat terminal
+├── state/        # Agent registry: persistent, versioned, permissioned agents
 └── utils/        # Colored terminal logger
 ```
 
@@ -1037,6 +1038,27 @@ While off, `import lightagentx.smartos` and `SmartOS(...)` raise `SmartOSDisable
 
 ---
 
+## Module 12: `state/` — Agent Registry (Persistent, Versioned, Permissioned Agents)
+
+Agents become long-lived resources that independent processes can discover, attach to and continue — with git-like history, safe concurrent writes, and per-principal access control.
+
+```python
+from lightagentx import AgentRegistry
+reg = AgentRegistry("~/.lightx/agents")
+aid = reg.create("SupportBot", owner="alice", schema={"customer": "str", "decisions": "list"})
+
+with reg.attach(aid, "alice", llm=llm) as s:      # any process, any time
+    s.run("Customer ACME wants a refund")
+    s.state["customer"] = "ACME"                    # committed as an immutable version
+```
+
+- **Versions**: every session commits a content-addressed (SHA-256) version with parents and provenance; `log`, `diff`, time travel, `verify()` for tamper detection
+- **Concurrency**: compare-and-swap branches; on conflict `merge` (three-way), `fork`, or `reject`
+- **Permissions**: `read / run / write / fork / merge / private / admin`, branch-scoped writers, private state keys, secret redaction — restricted sessions run on a redacted copy and still write back losslessly
+- Design, guarantees, limitations and related work: [`docs/agent-registry.md`](docs/agent-registry.md)
+
+---
+
 ## LangChain Equivalence Map
 
 | LightAgentX | LangChain |
@@ -1056,3 +1078,4 @@ While off, `import lightagentx.smartos` and `SmartOS(...)` raise `SmartOSDisable
 | `HookRegistry` | LangChain Callbacks / `BaseCallbackHandler` |
 | `AgentSnapshot` | No equivalent (manual serialization needed) |
 | `Sandbox` / `SmartOS` | No equivalent (LangChain's `ShellTool` runs unsandboxed) |
+| `AgentRegistry` | LangGraph checkpointer + `thread_id` (no merge, no ACLs) |

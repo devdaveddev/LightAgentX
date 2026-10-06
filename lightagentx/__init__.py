@@ -56,6 +56,7 @@ from .hooks import HookRegistry, HookEvent
 from .snapshot import AgentSnapshot
 
 from .sandbox import Risk, Sandbox, SandboxPolicy, SandboxViolation
+from .state import AccessPolicy, AgentRegistry
 from .features import (
     SmartOSDisabledError, disable_smartos, enable_smartos, smartos_enabled, smartos_status,
 )
@@ -80,6 +81,8 @@ __all__ = [
     "HookRegistry", "HookEvent", "AgentSnapshot",
     # Sandbox (SmartOS lives in lightagentx.smartos — needs the [os] extra)
     "Risk", "Sandbox", "SandboxPolicy", "SandboxViolation",
+    # Persistent, versioned, permissioned agents
+    "AgentRegistry", "AccessPolicy",
     # SmartOS on/off switch
     "smartos_enabled", "smartos_status", "enable_smartos", "disable_smartos",
     "SmartOSDisabledError",
