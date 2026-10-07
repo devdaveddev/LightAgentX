@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from ..sandbox import Risk, Sandbox, SandboxViolation
-from ..tools.base import BaseTool, tool
+from ..tools.base import BaseTool, mark_guarded, tool
 
 
 @dataclass
@@ -172,4 +172,4 @@ def make_app_tools(sandbox: Sandbox) -> list[BaseTool]:
                     break
         return "\n".join(results)
 
-    return [list_applications, launch_application, close_application]
+    return mark_guarded([list_applications, launch_application, close_application])

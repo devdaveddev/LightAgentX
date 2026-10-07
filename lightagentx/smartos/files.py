@@ -12,7 +12,7 @@ from datetime import datetime
 from pathlib import Path
 
 from ..sandbox import Risk, Sandbox
-from ..tools.base import BaseTool, tool
+from ..tools.base import BaseTool, mark_guarded, tool
 
 
 _RUNNABLE_SUFFIXES = {
@@ -193,5 +193,5 @@ def make_file_tools(sandbox: Sandbox) -> list[BaseTool]:
         shutil.move(str(p), str(dest))
         return f"Moved {p} to trash at {dest}"
 
-    return [list_directory, read_file, write_file, search_files, file_info,
-            open_file, move_to_trash]
+    return mark_guarded([list_directory, read_file, write_file, search_files, file_info,
+            open_file, move_to_trash])

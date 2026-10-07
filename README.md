@@ -1003,6 +1003,17 @@ A router LLM picks the specialist for each message (and rewrites "kill *it*" int
 
 When the sandbox says no, the agent receives `Error: ... SandboxViolation: <reason>` as the tool result and is instructed not to work around it.
 
+**Your own agents and tools** go through the same sandbox when you pass it in. Every tool call is then checked, risky ones need your confirmation, and all are audit-logged:
+
+```python
+@tool(risk="low", reads=["path"])     # declared path args are checked against the policy
+def read_report(path: str) -> str: ...
+
+agent = SingleAgent(name="Ops", llm=llm, tools=[read_report], sandbox=Sandbox())
+```
+
+Tools that don't declare a risk are treated as HIGH.
+
 ```python
 from lightagentx import AnthropicLLM, Risk, Sandbox, SandboxPolicy
 from lightagentx.smartos import SmartOS

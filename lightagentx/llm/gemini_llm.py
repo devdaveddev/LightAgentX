@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import uuid
 from typing import Any
 
 try:
@@ -118,7 +119,9 @@ class GeminiLLM(BaseLLM):
                 elif part.function_call:
                     fc = part.function_call
                     parsed_tool_calls.append({
-                        "id": f"call_{fc.name}",
+                        # Unique per call: two parallel calls to the same function
+                        # must not share an id (other providers reject duplicates).
+                        "id": getattr(fc, "id", None) or f"call_{uuid.uuid4().hex[:16]}",
                         "name": fc.name,
                         "arguments": dict(fc.args) if fc.args else {},
                     })
@@ -140,10 +143,13 @@ class GeminiLLM(BaseLLM):
         """
         system_instruction = ""
         contents: list[genai_types.Content] = []
+        # Tool results don't carry the function name, but Gemini matches a
+        # function_response to its function_call BY NAME: recover it from the call.
+        call_names: dict[str, str] = {}
 
         for msg in messages:
             role = msg.get("role", "user")
-            text = msg.get("content", "")
+            text = msg.get("content") or ""
 
             if role == "system":
                 system_instruction = text
@@ -152,19 +158,23 @@ class GeminiLLM(BaseLLM):
             gemini_role = "model" if role == "assistant" else "user"
 
             if role == "tool":
-                contents.append(genai_types.Content(
-                    role="user",
-                    parts=[genai_types.Part.from_function_response(
-                        name=msg.get("name", "tool"),
-                        response={"result": text},
-                    )],
-                ))
+                part = genai_types.Part.from_function_response(
+                    name=msg.get("name") or call_names.get(msg.get("tool_call_id", ""), "tool"),
+                    response={"result": text},
+                )
+                prev = contents[-1] if contents else None
+                if prev is not None and prev.role == "user" and prev.parts and all(
+                        p.function_response for p in prev.parts):
+                    prev.parts.append(part)  # results of parallel calls share one turn
+                else:
+                    contents.append(genai_types.Content(role="user", parts=[part]))
             elif role == "assistant" and "tool_calls" in msg:
                 parts = []
                 if text:
                     parts.append(genai_types.Part.from_text(text=text))
                 for tc in msg["tool_calls"]:
                     func = tc.get("function", {})
+                    call_names[tc.get("id", "")] = func.get("name", "")
                     args_raw = func.get("arguments", "{}")
                     args = json.loads(args_raw) if isinstance(args_raw, str) else args_raw
                     parts.append(genai_types.Part.from_function_call(

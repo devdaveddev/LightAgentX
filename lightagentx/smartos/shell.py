@@ -6,7 +6,7 @@ import sys
 import uuid
 
 from ..sandbox import Sandbox
-from ..tools.base import BaseTool, tool
+from ..tools.base import BaseTool, mark_guarded, tool
 
 
 def make_shell_tools(sandbox: Sandbox) -> list[BaseTool]:
@@ -41,4 +41,4 @@ def make_shell_tools(sandbox: Sandbox) -> list[BaseTool]:
             script.unlink(missing_ok=True)
         return result.to_text(sandbox.policy.max_output_chars)
 
-    return [run_command, run_python]
+    return mark_guarded([run_command, run_python])

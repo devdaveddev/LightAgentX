@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 from ..sandbox import Sandbox
-from ..tools.base import BaseTool, tool
+from ..tools.base import BaseTool, mark_guarded, tool
 from .tasks import require_psutil
 
 _SUSPICIOUS_EXE_DIRS = ("/tmp/", "/dev/shm/", "/var/tmp/", "/run/user/")
@@ -184,4 +184,4 @@ def make_security_tools(sandbox: Sandbox) -> list[BaseTool]:
         """List programs configured to start automatically (autostart, systemd user units, cron)."""
         return "\n".join(autostart_entries()) or "No autostart entries found."
 
-    return [security_scan, list_network_connections, check_listening_ports, check_autostart]
+    return mark_guarded([security_scan, list_network_connections, check_listening_ports, check_autostart])

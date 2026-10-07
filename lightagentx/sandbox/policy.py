@@ -91,6 +91,8 @@ class SandboxPolicy:
         protected_processes: Process names that may never be terminated.
         trusted_apps: App ids/names that can be launched without confirmation.
         confirm_at: Minimum Risk level that requires human confirmation.
+        undeclared_tool_risk: Risk assumed for tools that don't declare one
+            (`@tool(risk=...)`) when an agent runs with this sandbox.
     """
 
     workspace: Path = field(default_factory=lambda: _home() / ".lightx" / "workspace")
@@ -106,6 +108,7 @@ class SandboxPolicy:
     protected_processes: list[str] = field(default_factory=lambda: list(_DEFAULT_PROTECTED_PROCESSES))
     trusted_apps: list[str] = field(default_factory=list)
     confirm_at: Risk = Risk.HIGH
+    undeclared_tool_risk: Risk = Risk.HIGH
 
     def __post_init__(self) -> None:
         self.workspace = Path(self.workspace).expanduser().resolve()
@@ -117,6 +120,7 @@ class SandboxPolicy:
         if self.workspace not in self.read_paths:
             self.read_paths.insert(0, self.workspace)
         self.confirm_at = Risk(self.confirm_at)
+        self.undeclared_tool_risk = Risk(self.undeclared_tool_risk)
         self._blocked_re = [re.compile(p) for p in self.blocked_commands]
 
     # ── Checks ────────────────────────────────────────────────────────────
@@ -164,13 +168,15 @@ class SandboxPolicy:
             "protected_processes": list(self.protected_processes),
             "trusted_apps": list(self.trusted_apps),
             "confirm_at": self.confirm_at.name,
+            "undeclared_tool_risk": self.undeclared_tool_risk.name,
         }
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "SandboxPolicy":
         data = dict(data)
-        if isinstance(data.get("confirm_at"), str):
-            data["confirm_at"] = Risk[data["confirm_at"]]
+        for key in ("confirm_at", "undeclared_tool_risk"):
+            if isinstance(data.get(key), str):
+                data[key] = Risk[data[key]]
         return cls(**data)
 
 
