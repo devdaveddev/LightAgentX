@@ -206,3 +206,103 @@ class TestSingleAgentConvenience:
 
         restored = SingleAgent.from_snapshot(path, llm=MockLLM())
         assert restored.name == "Orig"
+
+
+# ── Memory fidelity ─────────────────────────────────────────────────────────
+
+from lightagentx import SummaryMemory  # noqa: E402
+
+
+class CountingSummarizer(BaseLLM):
+    """Summarizer LLM whose output is distinct from any agent reply."""
+
+    def __init__(self):
+        super().__init__(model="summarizer")
+        self.calls = 0
+
+    def chat(self, messages):
+        self.calls += 1
+        return LLMResponse(content=f"SUMMARY-{self.calls}")
+
+    def chat_with_tools(self, messages, tools):
+        return self.chat(messages)
+
+
+def summary_agent(summarizer):
+    agent = SingleAgent(name="Bot", llm=MockLLM(response="reply"),
+                        memory=SummaryMemory(llm=summarizer, max_messages=4), verbose=False)
+    for q in ["one", "two", "three"]:
+        agent.run(q)
+    return agent
+
+
+class TestMemoryFidelity:
+    def test_summary_memory_round_trip(self, tmp_path):
+        summarizer = CountingSummarizer()
+        agent = summary_agent(summarizer)
+        assert agent.memory.summary  # compression happened
+        agent.snapshot(tmp_path / "a.json")
+
+        calls_before = summarizer.calls
+        restored = SingleAgent.from_snapshot(tmp_path / "a.json", llm=summarizer)
+
+        assert isinstance(restored.memory, SummaryMemory)
+        assert restored.memory.max_messages == 4
+        assert restored.memory.summary == agent.memory.summary
+        assert restored.memory.get_messages() == agent.memory.get_messages()
+        assert summarizer.calls == calls_before  # restoring never re-summarizes
+
+    def test_restored_summary_memory_keeps_compressing(self, tmp_path):
+        summarizer = CountingSummarizer()
+        summary_agent(summarizer).snapshot(tmp_path / "a.json")
+        restored = SingleAgent.from_snapshot(tmp_path / "a.json", llm=summarizer)
+        old = restored.memory.summary
+        for q in ["four", "five", "six"]:
+            restored.run(q)
+        assert restored.memory.summary != old
+
+    def test_system_prompt_not_duplicated_in_file(self, tmp_path):
+        agent = SingleAgent(name="Bot", llm=MockLLM(), system_prompt="Be terse.", verbose=False)
+        agent.run("hi")
+        data = AgentSnapshot.to_dict(agent)
+        assert all(m["role"] != "system" for m in data["memory"]["messages"])
+        assert data["agent"]["system_prompt"] == "Be terse."
+
+    def test_buffer_memory_window_and_tool_calls_preserved(self, tmp_path):
+        class ToolOnce(MockLLM):
+            n = 0
+            def chat_with_tools(self, messages, tools):
+                ToolOnce.n += 1
+                if ToolOnce.n == 1:
+                    return LLMResponse(tool_calls=[{"id": "c1", "name": "mock_tool",
+                                                    "arguments": {"text": "x"}}])
+                return LLMResponse(content="done")
+        agent = SingleAgent(name="Bot", llm=ToolOnce(), tools=[mock_tool],
+                            memory=BufferMemory(max_messages=37), verbose=False)
+        agent.run("use the tool")
+        agent.snapshot(tmp_path / "a.json")
+        restored = SingleAgent.from_snapshot(tmp_path / "a.json", llm=MockLLM(), tools=[mock_tool])
+        assert restored.memory.max_messages == 37
+        assert restored.memory.get_messages() == agent.memory.get_messages()
+
+    def test_legacy_snapshot_summary_is_recovered(self, tmp_path):
+        """Files written before this fix kept the summary inside the system message."""
+        agent = SingleAgent(name="Bot", llm=MockLLM(), verbose=False)
+        data = AgentSnapshot.to_dict(agent)
+        data["memory"] = {"type": "SummaryMemory", "messages": [
+            {"role": "system", "content": "You are helpful.\n\nCONVERSATION SUMMARY SO FAR:\nOLD SUMMARY"},
+            {"role": "user", "content": "q"}, {"role": "assistant", "content": "a"},
+        ]}
+        restored = AgentSnapshot.from_dict(data, llm=CountingSummarizer())
+        assert isinstance(restored.memory, SummaryMemory)
+        assert restored.memory.summary == "OLD SUMMARY"
+        assert [m["content"] for m in restored.memory.get_messages()[1:]] == ["q", "a"]
+
+    def test_unknown_memory_type_falls_back_with_warning(self):
+        agent = SingleAgent(name="Bot", llm=MockLLM(), verbose=False)
+        agent.run("hi")
+        data = AgentSnapshot.to_dict(agent)
+        data["memory"]["type"] = "VectorMemory"
+        with pytest.warns(UserWarning, match="VectorMemory"):
+            restored = AgentSnapshot.from_dict(data, llm=MockLLM())
+        assert isinstance(restored.memory, BufferMemory)

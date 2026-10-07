@@ -10,6 +10,9 @@ from typing import Any
 from .agents.base import BaseAgent
 from .memory.base import BaseMemory
 from .memory.buffer import BufferMemory
+from .memory.summary import SummaryMemory
+
+_SUMMARY_MARKER = "CONVERSATION SUMMARY SO FAR:\n"
 
 
 _SNAPSHOT_FORMAT_VERSION = 1
@@ -81,10 +84,7 @@ class AgentSnapshot:
         }
 
         if include_memory:
-            snapshot["memory"] = {
-                "type": type(agent.memory).__name__,
-                "messages": agent.memory.get_messages(),
-            }
+            snapshot["memory"] = AgentSnapshot._memory_to_dict(agent.memory)
         else:
             snapshot["memory"] = None
 
@@ -133,28 +133,7 @@ class AgentSnapshot:
                 stacklevel=2,
             )
 
-        # Rebuild memory
-        memory: BaseMemory | None = None
-        mem_data = data.get("memory")
-        if mem_data and mem_data.get("messages"):
-            memory = BufferMemory(max_messages=200)
-            for msg in mem_data["messages"]:
-                role = msg.get("role", "user")
-                content = msg.get("content", "")
-                kwargs: dict[str, Any] = {}
-                if "tool_call_id" in msg:
-                    kwargs["tool_call_id"] = msg["tool_call_id"]
-                if "tool_calls" in msg:
-                    # Convert from OpenAI format back to internal format
-                    kwargs["tool_calls"] = [
-                        {
-                            "id": tc["id"],
-                            "name": tc["function"]["name"],
-                            "arguments": tc["function"]["arguments"],
-                        }
-                        for tc in msg["tool_calls"]
-                    ]
-                memory.add_message(role, content, **kwargs)
+        memory = AgentSnapshot._memory_from_dict(data.get("memory"), llm)
 
         agent = SingleAgent(
             name=agent_cfg["name"],
@@ -168,6 +147,51 @@ class AgentSnapshot:
         )
 
         return agent
+
+    # ── memory (de)serialization ──────────────────────────────────────────
+
+    @staticmethod
+    def _memory_to_dict(memory: BaseMemory) -> dict[str, Any]:
+        """
+        Store the conversation WITHOUT the system message (the system prompt
+        already lives in the agent config, and a second copy would be
+        overwritten on restore). SummaryMemory's running summary is stored
+        as its own field so it survives the round trip.
+        """
+        data: dict[str, Any] = {
+            "type": type(memory).__name__,
+            "max_messages": getattr(memory, "max_messages", None),
+            "messages": [m for m in memory.get_messages() if m.get("role") != "system"],
+        }
+        if isinstance(memory, SummaryMemory):
+            data["summary"] = memory.summary
+        return data
+
+    @staticmethod
+    def _memory_from_dict(mem_data: dict[str, Any] | None, llm: Any) -> BaseMemory | None:
+        """Rebuild the same memory class with the exact stored messages."""
+        if not mem_data:
+            return None
+        messages = [dict(m) for m in mem_data.get("messages", []) if m.get("role") != "system"]
+        mem_type = mem_data.get("type", "BufferMemory")
+
+        if mem_type == "SummaryMemory":
+            memory: BaseMemory = SummaryMemory(llm=llm, max_messages=mem_data.get("max_messages") or 10)
+            summary = mem_data.get("summary")
+            if summary is None:  # snapshots written before the summary had its own field
+                summary = _legacy_summary(mem_data.get("messages", []))
+            memory._summary = summary or ""
+        else:
+            if mem_type != "BufferMemory":
+                import warnings
+                warnings.warn(f"Memory type '{mem_type}' is restored as BufferMemory.",
+                              UserWarning, stacklevel=3)
+            memory = BufferMemory(max_messages=mem_data.get("max_messages") or 200)
+
+        # Messages are already in the stored wire format; load them as-is so the
+        # round trip is exact and no summarization is triggered while restoring.
+        memory._messages = messages
+        return memory
 
     @staticmethod
     def save(agent: BaseAgent, path: str | Path) -> None:
@@ -220,3 +244,12 @@ class AgentSnapshot:
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(data, indent=2, default=str), encoding="utf-8")
+
+
+def _legacy_summary(messages: list[dict[str, Any]]) -> str:
+    """Recover a SummaryMemory summary from an older snapshot's system message."""
+    for m in messages:
+        content = m.get("content") or ""
+        if m.get("role") == "system" and _SUMMARY_MARKER in content:
+            return content.split(_SUMMARY_MARKER, 1)[1].strip()
+    return ""
