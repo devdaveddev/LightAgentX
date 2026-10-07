@@ -159,14 +159,18 @@ class AnthropicLLM(BaseLLM):
             role = msg.get("role", "user")
 
             if role == "tool":
-                converted.append({
-                    "role": "user",
-                    "content": [{
-                        "type": "tool_result",
-                        "tool_use_id": msg.get("tool_call_id", "unknown"),
-                        "content": msg.get("content", ""),
-                    }],
-                })
+                block = {
+                    "type": "tool_result",
+                    "tool_use_id": msg.get("tool_call_id", "unknown"),
+                    "content": msg.get("content") or "",
+                }
+                prev = converted[-1] if converted else None
+                if (prev is not None and prev["role"] == "user" and isinstance(prev["content"], list)
+                        and all(b.get("type") == "tool_result" for b in prev["content"])):
+                    # Every result for one assistant turn must arrive in ONE user message.
+                    prev["content"].append(block)
+                else:
+                    converted.append({"role": "user", "content": [block]})
             elif role == "assistant" and "tool_calls" in msg:
                 content_blocks: list[dict[str, Any]] = []
                 text = msg.get("content", "")
