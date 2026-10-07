@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import inspect
 from dataclasses import dataclass, field
-from typing import Any, Callable, get_type_hints
+from typing import Any, Callable, Iterable, get_type_hints
+
+from ..sandbox.policy import Risk
 
 
 _TYPE_MAP: dict[type, str] = {
@@ -105,12 +107,23 @@ class BaseTool:
         description: What the tool does (shown to the LLM).
         parameters: JSON Schema describing the tool's input parameters.
         func: The actual callable that performs the tool's work.
+        risk: How dangerous the tool is (LOW/MEDIUM/HIGH). None = undeclared;
+            a sandboxed agent then treats it as the policy's
+            `undeclared_tool_risk` (HIGH by default).
+        reads: Names of arguments that are file paths the tool reads.
+        writes: Names of arguments that are file paths the tool writes.
+        guarded: True if the tool already checks the sandbox itself
+            (the built-in SmartOS tools), so the agent must not check twice.
     """
 
     name: str
     description: str
     parameters: dict[str, Any] = field(default_factory=dict)
     func: Callable = field(default=lambda **kwargs: None)
+    risk: Risk | None = None
+    reads: tuple[str, ...] = ()
+    writes: tuple[str, ...] = ()
+    guarded: bool = False
 
     def __call__(self, **kwargs: Any) -> Any:
         """Execute the tool with the given arguments."""
@@ -128,7 +141,22 @@ class BaseTool:
         }
 
 
-def tool(func: Callable) -> BaseTool:
+def _as_risk(risk: Risk | str | None) -> Risk | None:
+    if risk is None or isinstance(risk, Risk):
+        return risk
+    try:
+        return Risk[str(risk).upper()]
+    except KeyError:
+        raise ValueError(f"risk must be 'low', 'medium' or 'high', got {risk!r}") from None
+
+
+def tool(
+    func: Callable | None = None,
+    *,
+    risk: Risk | str | None = None,
+    reads: Iterable[str] = (),
+    writes: Iterable[str] = (),
+) -> Any:
     """
     Decorator that converts a regular Python function into a BaseTool.
 
@@ -144,15 +172,36 @@ def tool(func: Callable) -> BaseTool:
                 expression: The math expression to evaluate.
             '''
             return str(eval(expression))
-    """
-    name = func.__name__
-    docstring = func.__doc__ or ""
-    description = docstring.strip().split("\n")[0] if docstring else name
-    parameters = _extract_parameters_schema(func)
 
-    return BaseTool(
-        name=name,
-        description=description,
-        parameters=parameters,
-        func=func,
-    )
+        # With a safety declaration (used when the agent has a sandbox):
+        @tool(risk="high", writes=["path"])
+        def delete_file(path: str) -> str:
+            ...
+    """
+
+    def build(f: Callable) -> BaseTool:
+        docstring = f.__doc__ or ""
+        parameters = _extract_parameters_schema(f)
+        declared = set(parameters.get("properties", {}))
+        for arg in (*reads, *writes):
+            if arg not in declared:
+                raise ValueError(f"Tool '{f.__name__}' declares path argument '{arg}' "
+                                 f"but has no such parameter.")
+        return BaseTool(
+            name=f.__name__,
+            description=docstring.strip().split("\n")[0] if docstring else f.__name__,
+            parameters=parameters,
+            func=f,
+            risk=_as_risk(risk),
+            reads=tuple(reads),
+            writes=tuple(writes),
+        )
+
+    return build(func) if func is not None else build
+
+
+def mark_guarded(tools: list[BaseTool]) -> list[BaseTool]:
+    """Flag tools that perform their own sandbox checks (avoids double prompts)."""
+    for t in tools:
+        t.guarded = True
+    return tools

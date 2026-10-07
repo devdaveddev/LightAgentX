@@ -37,8 +37,10 @@ class AgentLoop:
         system_prompt: str = "You are a helpful AI assistant.",
         verbose: bool = True,
         hooks: HookRegistry | None = None,
+        sandbox: Any = None,
     ):
         self.llm = llm
+        self.sandbox = sandbox
         self.max_iterations = max_iterations
         self.logger = AgentLogger(verbose=verbose)
         self.hooks = hooks or HookRegistry()
@@ -50,7 +52,7 @@ class AgentLoop:
         self.registry = ToolRegistry()
         if tools:
             self.registry.register_many(tools)
-        self.executor = ToolExecutor(self.registry, self.logger)
+        self.executor = ToolExecutor(self.registry, self.logger, sandbox=sandbox)
 
         self.memory.add_message("system", system_prompt)
 

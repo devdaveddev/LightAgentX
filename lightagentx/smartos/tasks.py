@@ -7,7 +7,7 @@ import time
 from datetime import datetime
 
 from ..sandbox import Risk, Sandbox
-from ..tools.base import BaseTool, tool
+from ..tools.base import BaseTool, mark_guarded, tool
 
 try:
     import psutil
@@ -215,4 +215,4 @@ def make_task_tools(sandbox: Sandbox) -> list[BaseTool]:
         """
         return terminate_pid(sandbox, pid, force)
 
-    return [system_overview, list_processes, process_details, terminate_process]
+    return mark_guarded([system_overview, list_processes, process_details, terminate_process])

@@ -60,7 +60,7 @@ class Session:
                  read_only: bool, on_conflict: str, merge_strategy: str | Resolver,
                  transcript_strategy: str, summarizer: Callable[[list[dict]], str] | None,
                  workflow: str, state_tools: bool, hooks: HookRegistry | None,
-                 verbose: bool):
+                 verbose: bool, sandbox: Any = None):
         self.registry = registry
         self.agent_id = agent_id
         self.principal = principal
@@ -76,6 +76,7 @@ class Session:
         self.hooks = hooks
         self.verbose = verbose
         self.state_tools = state_tools
+        self.sandbox = sandbox
         self.committed: list[Version] = []
         self._load(base)
 
@@ -98,7 +99,7 @@ class Session:
                 system_prompt=self._system_prompt(base),
                 description=base.config.get("description", ""),
                 max_iterations=base.config.get("max_iterations", 10),
-                verbose=self.verbose, hooks=self.hooks,
+                verbose=self.verbose, hooks=self.hooks, sandbox=self.sandbox,
             )
             _load_messages(memory, self._loaded_transcript)
 
@@ -127,7 +128,7 @@ class Session:
         schema = self.registry._meta(self.agent_id).get("schema", {})
         session = self
 
-        @tool
+        @tool(risk="low")  # touches only this agent's stored state, never the OS
         def get_state(key: str = "") -> str:
             """Read the agent's persistent structured state (all keys, or one key).
 
@@ -137,7 +138,7 @@ class Session:
             data = session.state if not key else {key: session.state.get(key)}
             return json.dumps(data, default=str)
 
-        @tool
+        @tool(risk="low")  # touches only this agent's stored state, never the OS
         def set_state(key: str, value_json: str) -> str:
             """Set a key in the agent's persistent structured state. It is saved when the session commits.
 
@@ -152,7 +153,7 @@ class Session:
             session.state[key] = value
             return f"state[{key!r}] updated"
 
-        @tool
+        @tool(risk="low")  # touches only this agent's stored state, never the OS
         def append_state(key: str, item_json: str) -> str:
             """Append an item to a list in the agent's persistent structured state.
 
@@ -348,7 +349,8 @@ class AgentRegistry:
                transcript_strategy: str = "append",
                summarizer: Callable[[list[dict]], str] | None = None,
                workflow: str = "", state_tools: bool = False,
-               hooks: HookRegistry | None = None, verbose: bool = False) -> Session:
+               hooks: HookRegistry | None = None, verbose: bool = False,
+               sandbox: Any = None) -> Session:
         """
         Attach this process to an agent and continue from its stored state.
 
@@ -362,6 +364,7 @@ class AgentRegistry:
                 "raise", "ours", "theirs" or callable(path, base, ours, theirs).
             transcript_strategy: "append" or "digest" (needs `summarizer`).
             state_tools: Give the LLM get_state/set_state/append_state tools.
+            sandbox: Gate every tool call of this session through a Sandbox.
         """
         if on_conflict not in ("merge", "fork", "reject"):
             raise ValueError("on_conflict must be 'merge', 'fork' or 'reject'")
@@ -383,7 +386,7 @@ class AgentRegistry:
                        read_only=read_only, on_conflict=on_conflict,
                        merge_strategy=merge_strategy, transcript_strategy=transcript_strategy,
                        summarizer=summarizer, workflow=workflow, state_tools=state_tools,
-                       hooks=hooks, verbose=verbose)
+                       hooks=hooks, verbose=verbose, sandbox=sandbox)
 
     def _commit(self, s: Session, transcript: list[dict], state: dict[str, Any],
                 message: str) -> Version:

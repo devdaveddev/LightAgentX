@@ -2,10 +2,14 @@
 
 from __future__ import annotations
 
-from typing import Any
+import json
+from typing import TYPE_CHECKING, Any
 
 from .registry import ToolRegistry
 from ..utils.logger import AgentLogger
+
+if TYPE_CHECKING:
+    from ..sandbox import Sandbox
 
 
 class ToolExecutor:
@@ -18,9 +22,11 @@ class ToolExecutor:
         print(result)  # "4"
     """
 
-    def __init__(self, registry: ToolRegistry, logger: AgentLogger | None = None):
+    def __init__(self, registry: ToolRegistry, logger: AgentLogger | None = None,
+                 sandbox: "Sandbox | None" = None):
         self.registry = registry
         self.logger = logger or AgentLogger(verbose=False)
+        self.sandbox = sandbox
 
     def execute(self, tool_call: dict[str, Any]) -> str:
         """
@@ -49,6 +55,8 @@ class ToolExecutor:
             return f"Error: {error_msg}"
 
         try:
+            if self.sandbox is not None and not tool.guarded:
+                arguments = self._gate(tool, dict(arguments))
             result = tool(**arguments)
             result_str = str(result) if result is not None else "Done (no output)"
             self.logger.observation(result_str)
@@ -58,6 +66,32 @@ class ToolExecutor:
             error_msg = f"Tool '{name}' failed: {type(e).__name__}: {e}"
             self.logger.error(error_msg)
             return f"Error: {error_msg}"
+
+    def _gate(self, tool: Any, arguments: dict[str, Any]) -> dict[str, Any]:
+        """
+        The sandbox checkpoint every unguarded tool call passes through.
+
+        1. Declared path arguments are checked against the policy and replaced
+           by the resolved absolute path that was approved, so the tool opens
+           exactly what was checked (a relative path can't point elsewhere).
+        2. The call is authorized at the tool's risk level: low risk runs,
+           risky calls need a human "yes". Every decision is audit-logged.
+
+        Raises SandboxViolation, which `execute` turns into an error the LLM reads.
+        """
+        sandbox = self.sandbox
+        for arg in tool.reads:
+            if arguments.get(arg) is not None:
+                arguments[arg] = str(sandbox.check_read(arguments[arg]))
+        for arg in tool.writes:
+            if arguments.get(arg) is not None:
+                arguments[arg] = str(sandbox.check_write(arguments[arg]))
+        risk = tool.risk if tool.risk is not None else sandbox.policy.undeclared_tool_risk
+        detail = json.dumps(arguments, default=str)[:300]
+        if tool.risk is None:
+            detail += "  (risk not declared)"
+        sandbox.authorize(f"tool:{tool.name}", detail, risk)
+        return arguments
 
     def execute_many(self, tool_calls: list[dict[str, Any]]) -> list[dict[str, str]]:
         """

@@ -39,8 +39,16 @@ class SingleAgent(BaseAgent):
         max_iterations: int = 10,
         verbose: bool = True,
         hooks: HookRegistry | None = None,
+        sandbox: Any = None,
     ):
+        """
+        Args:
+            sandbox: Optional `lightagentx.Sandbox`. When given, EVERY tool call
+                passes through it: declared path arguments are checked, risky
+                calls need confirmation, and everything is audit-logged.
+        """
         super().__init__(name=name, description=description)
+        self.sandbox = sandbox
         self.llm = llm
         self.tools = tools or []
         # `is not None`: an empty memory has len() == 0 and would be falsy
@@ -59,6 +67,7 @@ class SingleAgent(BaseAgent):
             system_prompt=self.system_prompt,
             verbose=self.verbose,
             hooks=self.hooks,
+            sandbox=self.sandbox,
         )
 
     def run(self, input_text: str) -> str:
@@ -85,6 +94,7 @@ class SingleAgent(BaseAgent):
             system_prompt=self.system_prompt,
             verbose=self.verbose,
             hooks=self.hooks,
+            sandbox=self.sandbox,
         )
 
     # ── Snapshot convenience methods ──────────────────────────────────────
