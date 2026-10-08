@@ -70,6 +70,88 @@ With a local `qwen2.5:3b`, `--fix` proposed and verified `from fakelib.io import
 
 ---
 
+## How it works inside
+
+### 1. "Installed vs required" (`doctor/checks.py: check_dependencies`)
+
+```python
+for text, source in _read_requirements(project):        # pyproject [project].dependencies, requirements*.txt
+    req = Requirement(text)                              # packaging: name + specifier + marker
+    if req.marker and not req.marker.evaluate({"extra": ""}):
+        continue                                         # e.g. "; python_version < '3.11'" not for us
+    installed = importlib.metadata.version(req.name)     # what's really installed (None -> "not installed")
+    if not req.specifier.contains(Version(installed), prereleases=True):
+        -> Finding("langchain-core 1.0.5 doesn't satisfy '>=1.1'")
+```
+
+`pip check` adds conflicts *between* installed packages (e.g. `streamlit needs packaging<26, but 26.3 is installed`). LightAgentX's own requirements come from `importlib.metadata.requires("lightagentx")`.
+
+### 2. "Did an upgrade break my imports?" (`project.py: collect_imports`, `probe_imports`)
+
+1. **Read every import statically.** `ast` reads every `.py` file in the project, and each external `import x` / `from x import a, b` is recorded with its file and line. The project's own modules are skipped.
+2. **Actually import them, in the sandbox.** A small probe script runs **inside the sandbox** on a copy of the project:
+   ```python
+   mod = importlib.import_module("langchain.chat_models")   # ModuleNotFoundError? -> module moved/removed
+   hasattr(mod, "ChatOpenAI")                               # False? -> name removed or moved
+   warnings.catch_warnings(record=True)                     # DeprecationWarning on import? -> recorded
+   ```
+   This tests the real installed versions, so it catches breaking changes no matter which version range a project declares.
+3. **Find where it lives now** (`find_definitions`, `find_module_candidates`). This is a static search, with nothing executed, through the installed package **and its siblings** (`langchain` → also `langchain_core`, `langchain_community`, …):
+   - for a missing *name*: files containing `def ChatOpenAI`, `class ChatOpenAI` or `ChatOpenAI = …`;
+   - for a missing *module* `a.b.c`: installed modules whose path ends in `b.c` or `c`.
+
+   The result ("`'load_data' is now defined in: fakelib.io`") goes into the report and to the LLM.
+
+### 3. Deprecations in your code (`checks.py: run_tests`)
+
+The project's tests run in the sandbox with `-W always::DeprecationWarning` (and `PendingDeprecationWarning`, `FutureWarning`). pytest's warning summary lists `path:line: DeprecationWarning: message`. Only warnings that point at **project** files are kept, since warnings raised inside libraries aren't yours to fix. The same run records which tests already fail: the **baseline** used later for verification.
+
+### 4. Verification (`fixer.py: propose_code_fix`, `_still_broken`)
+
+```python
+copy = ws.fresh_copy(f"attempt-{n}")                  # never your files
+new_files = _apply_edits(copy, llm_edits)              # exact search/replace; must match once; no tests/
+tests = run_tests(ws, copy, test_command)              # in the sandbox
+problem = _still_broken(finding, ws, copy, tests, known_breakage)
+new_failures = tests.failed - baseline.failed
+accept = problem is None and not new_failures
+```
+
+`_still_broken` re-imports the patched file's imports in the sandbox. It rejects a patch if **this** problem is still there or if **any import that worked before is now broken**. Problems that already existed elsewhere in the file are left for their own fix. If a patch is rejected, the reason (the error, or the newly failing tests with their output) goes back to the LLM for the next attempt.
+
+### 5. The sandbox for someone else's code
+
+The project's code runs with the same isolation as the rest of LightAgentX (bubblewrap on Linux): read-only system, no network, secrets hidden, and only the workspace copy is writable. For imports to behave as they do in your environment, the sandbox is given read-only access to the real interpreter (also when it lives under `/tmp`, as uv- or pyenv-managed Pythons can), its `site-packages`, your `pip install --user` packages (`PYTHONUSERBASE`) and the entries of your `PYTHONPATH`.
+
+---
+
+## Running it with a free local model (no API key)
+
+The doctor works with any OpenAI-compatible server. [Ollama](https://ollama.com) runs open models on an ordinary CPU, without a GPU and without root:
+
+```bash
+# install into your home folder (no sudo)
+curl -fsSLO https://github.com/ollama/ollama/releases/latest/download/ollama-linux-amd64.tar.zst
+mkdir -p ~/.local/ollama && tar --zstd -xf ollama-linux-amd64.tar.zst -C ~/.local/ollama \
+    --exclude='*cuda*' --exclude='*rocm*' --exclude='*vulkan*'      # CPU-only: ~60 MB instead of ~1.4 GB
+
+OLLAMA_HOST=127.0.0.1:11434 ~/.local/ollama/bin/ollama serve &    # listens on this machine only
+~/.local/ollama/bin/ollama pull qwen2.5:3b                         # ~1.9 GB, downloaded once
+
+lightx doctor --fix --base-url http://127.0.0.1:11434/v1 --model qwen2.5:3b
+```
+
+**Why a small model is enough here**
+- **Most of the work isn't the LLM's.** The doctor has already found the problem, the exact line and where the name lives now; the model only writes a one-line search/replace edit.
+- **Wrong answers are cheap.** Verification rejects patches that don't work, and the model is asked again with the reason.
+
+**What to expect on a laptop CPU**
+- **Speed:** a few seconds per reply for a 3B model.
+- **Bigger models** (`qwen2.5:7b`, `qwen2.5-coder:7b`) are better at complex fixes but need roughly 5 GB of free RAM and are slower.
+- **Hosted models** work too, via `--provider` and an API key.
+
+---
+
 ## Options
 
 | Option | Meaning |
