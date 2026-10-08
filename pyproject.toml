@@ -55,6 +55,7 @@ dev = [
 ]
 
 [project.scripts]
+lightx = "lightagentx.cli:main"
 lightx-os = "lightagentx.features:launch_smartos"
 
 [project.urls]

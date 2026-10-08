@@ -39,6 +39,7 @@ lightagentx/
 ├── sandbox/      # Policy, isolation backends (bubblewrap), confirmation, audit
 ├── smartos/      # OS-managing agent crew + `lightx-os` chat terminal
 ├── state/        # Agent registry: persistent, versioned, permissioned agents
+├── doctor/       # `lightx doctor`: version checks + verified, approved fixes
 └── utils/        # Colored terminal logger
 ```
 
@@ -1066,7 +1067,22 @@ with reg.attach(aid, "alice", llm=llm) as s:      # any process, any time
 - **Versions**: every session commits a content-addressed (SHA-256) version with parents and provenance; `log`, `diff`, time travel, `verify()` for tamper detection
 - **Concurrency**: compare-and-swap branches; on conflict `merge` (three-way), `fork`, or `reject`
 - **Permissions**: `read / run / write / fork / merge / private / admin`, branch-scoped writers, private state keys, secret redaction — restricted sessions run on a redacted copy and still write back losslessly
+- **Shipping**: `export_agent(...)` writes the agent (history, config, tool code) to one `.lxagent` file; `import_agent(...)` verifies every hash and restores it on another machine; tool code runs only after `load_tools(..., trust=True)`
 - Design, guarantees, limitations and related work: [`docs/agent-registry.md`](docs/agent-registry.md)
+
+---
+
+## Module 13: `lightx doctor` — Version Problems, Fixed With Verified Patches
+
+```bash
+lightx doctor              # report: dependencies, broken imports, deprecations, old saved agents
+lightx doctor --fix        # LLM proposes a patch -> verified in the sandbox -> you approve -> applied
+```
+
+- **Finds** requirements that are missing or at the wrong version, `pip` conflicts, imports broken by an upgrade (including *where the name lives now*), deprecation warnings in your code, and saved agents in old formats
+- **Fixes** only after **verification**: each patch is applied to a copy and must make the problem go away without breaking any import or test that worked before, all inside the sandbox. You see the diff, nothing changes without your "yes", and originals are backed up
+- Re-checks after fixing, because one fix can reveal the next problem
+- Details and limitations: [`docs/doctor.md`](docs/doctor.md)
 
 ---
 

@@ -144,9 +144,10 @@ class Sandbox:
         return self.backend.run(argv, self.policy, timeout_s=timeout_s)
 
     def run_argv(self, argv: list[str], stdin: str | None = None,
-                 timeout_s: float | None = None) -> ExecResult:
+                 timeout_s: float | None = None,
+                 env: dict[str, str] | None = None) -> ExecResult:
         """Run a fixed argv inside the sandbox (caller must authorize)."""
-        return self.backend.run(argv, self.policy, stdin=stdin, timeout_s=timeout_s)
+        return self.backend.run(argv, self.policy, stdin=stdin, timeout_s=timeout_s, env=env)
 
     # ── Audit ─────────────────────────────────────────────────────────────
 

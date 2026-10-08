@@ -576,6 +576,55 @@ class AgentRegistry:
             "transcript_messages": (len(va.transcript), len(vb.transcript)),
         }
 
+    # ── shipping: export / import ─────────────────────────────────────────
+
+    def export_agent(self, agent_id: str, principal: str, path: str | Path, *,
+                     branches: list[str] | None = None, tools: list[Any] = (),
+                     redact: bool = False) -> Path:
+        """
+        Write the agent to one archive file (conventionally ``<name>.lxagent``).
+
+        Args:
+            path: Archive file to write.
+            branches: Branches to include (default: all).
+            tools: Tools (BaseTool objects or .py paths) whose source files to ship.
+            redact: False (default) exports the full, unredacted history and needs
+                'admin'. True exports only what `principal` may see, without
+                history, and needs only 'read'.
+        """
+        from .archive import export_agent
+        return export_agent(self, agent_id, principal, path, branches=branches,
+                            tools=tools, redact=redact)
+
+    def import_agent(self, path: str | Path, principal: str, *, agent_id: str | None = None,
+                     owner: str | None = None) -> str:
+        """
+        Import an archive created by `export_agent`. Every file and version hash is
+        verified first. Nothing in the archive is executed.
+
+        Args:
+            agent_id: Import under this id (a copy; history is re-keyed). Default: the original id.
+            owner: Make this principal the owner (default: keep the original owner).
+        Returns:
+            The imported agent's id.
+        """
+        from .archive import import_agent
+        return import_agent(self, path, principal, agent_id=agent_id, owner=owner)
+
+    def tool_files(self, agent_id: str) -> dict[str, str]:
+        """Imported tool source files and their SHA-256, to review before loading."""
+        from .archive import tool_files
+        return tool_files(self, agent_id)
+
+    def load_tools(self, agent_id: str, principal: str, *, trust: bool = False) -> list[BaseTool]:
+        """
+        Load an imported agent's tools. Tool files are code from the archive's
+        author, so this runs only with trust=True; otherwise it raises
+        PermissionError listing the files to review.
+        """
+        from .archive import load_tools
+        return load_tools(self, agent_id, principal, trust=trust)
+
     def verify(self, agent_id: str) -> int:
         """Re-hash every version reachable from every branch. Returns how many were checked."""
         seen: set[str] = set()

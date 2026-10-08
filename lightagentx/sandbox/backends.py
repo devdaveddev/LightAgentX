@@ -102,8 +102,13 @@ class SandboxBackend(ABC):
         policy: SandboxPolicy,
         stdin: str | None = None,
         timeout_s: float | None = None,
+        env: dict[str, str] | None = None,
     ) -> ExecResult:
-        """Run a command under this backend with the policy's limits."""
+        """Run a command under this backend with the policy's limits.
+
+        `env` adds explicit variables (e.g. PYTHONPATH) on top of the scrubbed
+        environment; nothing else from the caller's environment passes through.
+        """
         policy.workspace.mkdir(parents=True, exist_ok=True)
         timeout = min(timeout_s or policy.timeout_s, policy.timeout_s)
         full_argv = self.build_argv(argv, policy)
@@ -112,7 +117,7 @@ class SandboxBackend(ABC):
         proc = subprocess.Popen(
             full_argv,
             cwd=str(policy.workspace),
-            env=_safe_env(policy),
+            env={**_safe_env(policy), **(env or {})},
             stdin=subprocess.PIPE if stdin is not None else subprocess.DEVNULL,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -219,8 +224,11 @@ class BubblewrapBackend(SandboxBackend):
             # Keep DNS working on systemd-resolved hosts.
             args += ["--ro-bind-try", "/run/systemd/resolve", "/run/systemd/resolve"]
 
+        # $HOME, /tmp and /run are replaced by empty tmpfs above; re-expose the
+        # allowed read paths that live under them (read-only).
+        hidden_roots = [home, Path("/tmp"), Path("/run")]
         for p in policy.read_paths:
-            if p == home or home in p.parents:
+            if any(p == r or r in p.parents for r in hidden_roots):
                 args += ["--ro-bind-try", str(p), str(p)]
 
         for p in policy.deny_paths:

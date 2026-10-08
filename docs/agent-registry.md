@@ -98,6 +98,48 @@ When that session commits, only its **changes** are written back onto the full, 
 
 Every access decision, including denials, is written to `audit.jsonl`. Only `admin` can read it.
 
+### Shipping an agent: export and import (`archive.py`)
+
+An agent can be moved to another machine or registry as **one file**:
+
+```python
+# machine A
+reg.export_agent(aid, "priya", "SupportBot.lxagent", tools=[order_status])
+
+# machine B
+aid = reg.import_agent("SupportBot.lxagent", "devansh")
+tools = reg.load_tools(aid, "devansh", trust=True)      # after reviewing reg.tool_files(aid)
+with reg.attach(aid, "devansh", llm=llm, tools=tools) as s:
+    s.run("Continue where we left off")
+```
+
+The archive (a gzip tar) contains:
+
+```
+manifest.json      format, source agent, branches, SHA-256 of every other file
+meta.json          name, owner, schema, access policy
+objects/<id>.json  every version reachable from the exported branches, byte-for-byte
+tools/*.py         the tools' source code (passed as tool objects or .py paths)
+```
+
+**Full vs redacted export**
+- **The full export (the default) needs `admin`.** It carries the complete, unredacted history with private keys, so the version ids stay the same.
+- **`redact=True` needs only `read`.** It writes one new root version per branch containing only what that principal may see: no private keys, secrets redacted, no history.
+
+**On import**
+- **Validation:** every entry must be a plain file at a safe path (no absolute paths, `..` or links). The archive must contain exactly the files its manifest lists, and each must match its SHA-256.
+- **Version checks:** every version must hash to its own id and belong to the archived agent, and every parent and branch target must be present.
+- **Nothing is executed,** and the import is audit-logged.
+- **Copies:** `agent_id="..."` imports a copy; the history is re-keyed, since ids depend on content. `owner="..."` transfers ownership.
+
+**Tool code needs explicit trust.**
+- **Tool files are Python written by the archive's author.**
+- **`reg.tool_files(aid)`** lists them with their SHA-256 for review.
+- **`load_tools(..., trust=True)`** is the only step that runs them; without `trust=True` it raises `PermissionError`.
+- **Export checks the shipped files statically** (without running them) and warns if they don't define every tool the agent has used.
+
+**What integrity does and doesn't guarantee.** The hashes detect corruption and any edit to a version, even if the attacker also rewrites the manifest. But archives aren't signed: someone who builds a whole new archive can make it internally consistent. Only import archives from sources you trust.
+
 ---
 
 ## Evaluation
