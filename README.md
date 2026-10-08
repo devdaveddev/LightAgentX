@@ -1066,6 +1066,7 @@ with reg.attach(aid, "alice", llm=llm) as s:      # any process, any time
 - **Versions**: every session commits a content-addressed (SHA-256) version with parents and provenance; `log`, `diff`, time travel, `verify()` for tamper detection
 - **Concurrency**: compare-and-swap branches; on conflict `merge` (three-way), `fork`, or `reject`
 - **Permissions**: `read / run / write / fork / merge / private / admin`, branch-scoped writers, private state keys, secret redaction — restricted sessions run on a redacted copy and still write back losslessly
+- **Shipping**: `export_agent(...)` writes the agent (history, config, tool code) to one `.lxagent` file; `import_agent(...)` verifies every hash and restores it on another machine; tool code runs only after `load_tools(..., trust=True)`
 - Design, guarantees, limitations and related work: [`docs/agent-registry.md`](docs/agent-registry.md)
 
 ---
