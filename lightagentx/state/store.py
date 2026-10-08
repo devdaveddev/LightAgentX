@@ -18,6 +18,9 @@ from typing import Any
 
 _BRANCH_RE = re.compile(r"^[A-Za-z0-9._-]{1,100}$")
 
+REGISTRY_FORMAT = "lightx-registry"
+REGISTRY_FORMAT_VERSION = 1
+
 
 class ConflictError(RuntimeError):
     """A branch moved since the session attached (compare-and-swap failed)."""
@@ -187,9 +190,22 @@ class VersionStore:
 
     def __init__(self, root: str | Path):
         self.root = Path(root).expanduser().resolve()
+        fresh = not (self.root / "agents").exists() or not any((self.root / "agents").iterdir())
         (self.root / "objects").mkdir(parents=True, exist_ok=True)
         self._parents: dict[str, tuple[str, ...]] = {}
         (self.root / "agents").mkdir(parents=True, exist_ok=True)
+        if fresh and not (self.root / "FORMAT").exists():
+            # New registries record their on-disk format so future versions can
+            # migrate them. Older registries without it are left for `lightx doctor`.
+            atomic_write(self.root / "FORMAT", f"{REGISTRY_FORMAT} {REGISTRY_FORMAT_VERSION}\n")
+
+    def format_version(self) -> int | None:
+        """On-disk format version, or None for registries created before versioning."""
+        try:
+            name, version = (self.root / "FORMAT").read_text().split()
+        except (FileNotFoundError, ValueError):
+            return None
+        return int(version) if name == REGISTRY_FORMAT else None
 
     # ── objects ───────────────────────────────────────────────────────────
 

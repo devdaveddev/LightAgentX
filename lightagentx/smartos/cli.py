@@ -33,34 +33,11 @@ Direct commands (no LLM):
 
 
 def make_llm(provider: str, model: str | None, base_url: str | None) -> BaseLLM:
-    if provider == "auto":
-        if base_url:
-            provider = "openai"
-        elif os.environ.get("ANTHROPIC_API_KEY"):
-            provider = "anthropic"
-        elif os.environ.get("OPENAI_API_KEY"):
-            provider = "openai"
-        elif os.environ.get("GOOGLE_API_KEY"):
-            provider = "gemini"
-        else:
-            raise SystemExit(
-                "No LLM configured. Set ANTHROPIC_API_KEY, OPENAI_API_KEY or GOOGLE_API_KEY, "
-                "or point --base-url at an OpenAI-compatible local server (e.g. Ollama)."
-            )
-    kwargs = {"temperature": 0.2, "max_tokens": 2048}
-    if model:
-        kwargs["model"] = model
-    if provider == "anthropic":
-        from ..llm.anthropic_llm import AnthropicLLM
-        return AnthropicLLM(**kwargs)
-    if provider == "gemini":
-        from ..llm.gemini_llm import GeminiLLM
-        return GeminiLLM(**kwargs)
-    from ..llm.openai_llm import OpenAILLM
-    if base_url:
-        kwargs["base_url"] = base_url
-        kwargs["api_key"] = os.environ.get("OPENAI_API_KEY", "local")
-    return OpenAILLM(**kwargs)
+    from ..llm.auto import NoLLMConfigured, llm_from_env
+    try:
+        return llm_from_env(provider, model, base_url)
+    except NoLLMConfigured as e:
+        raise SystemExit(str(e)) from None
 
 
 def terminal_confirmer(description: str, risk: Risk) -> bool:
