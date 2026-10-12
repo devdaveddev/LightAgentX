@@ -3,7 +3,9 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { VitePWA } from "vite-plugin-pwa";
 
+// "/" for Docker/Render; GitHub Pages serves from /<repo>/ and sets BASE_PATH.
 export default defineConfig({
+  base: process.env.BASE_PATH ?? "/",
   plugins: [
     react(),
     tailwindcss(),
@@ -11,12 +13,12 @@ export default defineConfig({
       registerType: "autoUpdate",
       includeAssets: ["favicon.svg", "apple-touch-icon.png"],
       manifest: {
-        id: "/",
+        id: "./",
         name: "LightAgentX",
         short_name: "LightAgentX",
         description: "A from-scratch agentic AI framework in pure Python. Agents, without the magic.",
-        start_url: "/",
-        scope: "/",
+        start_url: "./",
+        scope: "./",
         display: "standalone",
         orientation: "portrait-primary",
         background_color: "#0f172a",
@@ -28,8 +30,8 @@ export default defineConfig({
           { src: "maskable-512x512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
         ],
         shortcuts: [
-          { name: "Quickstart", url: "/#quickstart" },
-          { name: "Sandbox", url: "/#sandbox" },
+          { name: "Quickstart", url: "./#quickstart" },
+          { name: "Sandbox", url: "./#sandbox" },
         ],
       },
       workbox: {

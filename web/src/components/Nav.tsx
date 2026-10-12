@@ -16,7 +16,7 @@ const LINKS = [
 export function Logo() {
   return (
     <a href="#top" className="flex items-center gap-2.5 font-semibold tracking-tight" aria-label="LightAgentX home">
-      <img src="/favicon.svg" alt="" className="size-7" />
+      <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" className="size-7" />
       <span>
         LightAgent<span className="text-accent">X</span>
       </span>

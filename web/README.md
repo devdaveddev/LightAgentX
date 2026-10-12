@@ -32,3 +32,9 @@ The site is an installable web app: on Android/Chrome use **Install app**, on iP
 **Share → Add to Home Screen**. It opens full-screen, respects the notch and home indicator, and works
 offline after the first visit (service worker via `vite-plugin-pwa`, updates itself on each deploy).
 Icons are in `public/`.
+
+## Deploy (GitHub Pages)
+
+Live at **https://devdaveddev.github.io/LightAgentX/**. `.github/workflows/pages.yml` builds with
+`BASE_PATH=/LightAgentX/` and publishes on every push to `main` or `feature/website` that touches `web/`.
+The Docker/Render build keeps `BASE_PATH` unset, so it serves from `/`.
