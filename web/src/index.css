@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+@theme {
+  /* UI UX Pro Max · "Dark Mode (OLED)" + developer-tool pairing (JetBrains Mono / IBM Plex Sans) */
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, monospace;
+
+  --color-bg: #0f172a;
+  --color-surface: #1b2336;
+  --color-surface-2: #272f42;
+  --color-line: rgb(71 85 105 / 0.45);
+  --color-line-strong: #475569;
+  --color-fg: #f8fafc;
+  --color-muted: #94a3b8;
+  --color-faint: #8291a7; /* 5.6:1 on bg, 4.9:1 on cards */
+  --color-accent: #22c55e;
+  --color-accent-ink: #0f172a;
+  --color-sky: #38bdf8;
+  --color-amber: #fbbf24;
+  --color-rose: #f87171;
+  --color-violet: #a78bfa;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: rgb(34 197 94 / 0.3);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgb(148 163 184 / 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(148 163 184 / 0.06) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 30%, transparent 75%);
+}
+
+/* syntax tokens */
+.tk-kw { color: #c792ea; }
+.tk-str { color: #c3e88d; }
+.tk-com { color: #8291a7; font-style: italic; }
+.tk-dec { color: #ffcb6b; }
+.tk-num { color: #f78c6c; }
+.tk-fn { color: #82aaff; }
+.tk-cls { color: #ffcb6b; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* grid tracks default to auto on small screens; never let code blocks widen them */
+@layer base {
+  h1, h2, h3 {
+    font-family: var(--font-mono);
+    letter-spacing: -0.03em;
+  }
+  .grid { grid-template-columns: minmax(0, 1fr); }
+  .grid > * { min-width: 0; }
+}
+
+.glow {
+  text-shadow: 0 0 10px rgb(34 197 94 / 0.45), 0 0 32px rgb(34 197 94 / 0.2);
+}

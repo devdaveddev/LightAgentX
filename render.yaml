@@ -1,0 +1,20 @@
+# Render Blueprint: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: lightagentx-web
+    runtime: docker
+    plan: free
+    branch: feature/website   # switch to main once the site is merged
+    dockerContext: ./web
+    dockerfilePath: ./web/Dockerfile
+    healthCheckPath: /healthz
+    autoDeploy: true
+    buildFilter:
+      paths:
+        - web/**
+        - render.yaml
+      ignoredPaths:
+        - web/README.md
+    envVars:
+      - key: PORT          # tells Render which port nginx listens on
+        value: "8080"
