@@ -17,7 +17,7 @@ Quick Start:
     print(agent.run("What is 25 * 37?"))
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 from .llm.base import BaseLLM, LLMResponse
 from .llm.key_guard import SecureKey

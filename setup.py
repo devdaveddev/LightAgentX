@@ -1,24 +1,4 @@
-from setuptools import setup, find_packages
+# All metadata lives in pyproject.toml; this shim only keeps legacy `pip install -e .` working.
+from setuptools import setup
 
-setup(
-    name="lightagentx",
-    version="0.1.0",
-    description="A lightweight modular agentic AI framework built from scratch",
-    author="Devansh",
-    packages=find_packages(),
-    python_requires=">=3.10",
-    install_requires=[
-        "openai>=1.0.0",
-    ],
-    extras_require={
-        "anthropic": ["anthropic>=0.30.0"],
-        "gemini": ["google-genai>=1.0.0"],
-        "os": ["psutil>=5.9.0"],
-        "all": ["anthropic>=0.30.0", "google-genai>=1.0.0", "psutil>=5.9.0"],
-        "dev": ["pytest>=7.0.0"],
-    },
-    entry_points={
-        "console_scripts": ["lightx=lightagentx.cli:main",
-            "lightx-os=lightagentx.features:launch_smartos"],
-    },
-)
+setup()
