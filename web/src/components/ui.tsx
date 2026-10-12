@@ -1,51 +1,33 @@
 import { useState, type ReactNode } from "react";
 import { motion } from "motion/react";
-import { ease } from "../lib";
 import { Check, Copy } from "lucide-react";
 
-export function Reveal({
-  children,
-  className,
-  delay = 0,
-}: {
-  children: ReactNode;
-  className?: string;
-  delay?: number;
-}) {
-  return (
-    <motion.div
-      className={className}
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.6, ease, delay }}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
+/** A numbered section, laid out like a chapter: number in the margin, serif heading, prose lead. */
 export function Section({
   id,
-  eyebrow,
+  n,
   title,
   lead,
   children,
 }: {
   id: string;
-  eyebrow: string;
+  n: string;
   title: ReactNode;
   lead?: ReactNode;
   children: ReactNode;
 }) {
   return (
-    <section id={id} className="relative mx-auto max-w-6xl px-4 py-24 sm:px-6 md:py-32">
-      <Reveal className="max-w-3xl">
-        <p className="font-mono text-xs tracking-widest text-accent uppercase">{eyebrow}</p>
-        <h2 className="mt-3 text-[1.7rem] leading-tight font-semibold text-balance sm:text-[2.15rem]">{title}</h2>
-        {lead && <p className="mt-4 max-w-2xl text-lg leading-relaxed text-pretty text-muted">{lead}</p>}
-      </Reveal>
-      <div className="mt-12 md:mt-16">{children}</div>
+    <section id={id} className="border-t border-line">
+      <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 md:py-28">
+        <header className="grid gap-x-10 gap-y-2 md:grid-cols-[6rem_1fr]">
+          <p className="pt-2 font-mono text-sm text-faint">{n}</p>
+          <div>
+            <h2 className="text-3xl leading-tight font-medium text-balance sm:text-[2.6rem]">{title}</h2>
+            {lead && <div className="mt-5 max-w-[64ch] space-y-4 text-[1.06rem] leading-relaxed text-pretty text-muted">{lead}</div>}
+          </div>
+        </header>
+        <div className="mt-12 md:mt-14">{children}</div>
+      </div>
     </section>
   );
 }
@@ -65,10 +47,10 @@ export function CopyButton({ text, className = "" }: { text: string; className?:
           /* clipboard unavailable */
         }
       }}
-      className={`inline-flex size-11 shrink-0 cursor-pointer md:size-9 items-center justify-center rounded-md text-muted transition-colors hover:bg-white/5 hover:text-fg ${className}`}
+      className={`inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-md text-code-dim transition-colors hover:bg-white/10 hover:text-code-fg md:size-9 ${className}`}
     >
       <motion.span key={copied ? "y" : "n"} initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
-        {copied ? <Check className="size-4 text-accent" /> : <Copy className="size-4" />}
+        {copied ? <Check className="size-4 text-[#86efac]" /> : <Copy className="size-4" />}
       </motion.span>
     </button>
   );
@@ -78,7 +60,7 @@ const PY_KEYWORDS = new Set(
   "def class return import from as with if else elif for in while try except raise lambda None True False and or not is async await yield pass".split(" "),
 );
 
-/** Tiny tokenizer for Python / shell snippets. Good enough for marketing code, not a parser. */
+/** Tiny tokenizer for Python / shell snippets. Good enough for a landing page, not a parser. */
 function highlight(code: string, lang: "python" | "bash" | "text") {
   if (lang === "text") return [<span key="0">{code}</span>];
   const re =
@@ -111,6 +93,18 @@ function highlight(code: string, lang: "python" | "bash" | "text") {
   return out;
 }
 
+export function Panel({ title, action, children, className = "" }: { title: ReactNode; action?: ReactNode; children: ReactNode; className?: string }) {
+  return (
+    <div className={`overflow-hidden rounded-lg border border-code-line bg-code text-code-fg ${className}`}>
+      <div className="flex min-h-11 items-center justify-between border-b border-code-line pr-1 pl-4">
+        <span className="truncate font-mono text-xs text-code-dim">{title}</span>
+        {action}
+      </div>
+      {children}
+    </div>
+  );
+}
+
 export function CodeBlock({
   code,
   lang = "python",
@@ -123,15 +117,11 @@ export function CodeBlock({
   className?: string;
 }) {
   return (
-    <div className={`overflow-hidden rounded-xl border border-line bg-surface ${className}`}>
-      <div className="flex items-center justify-between border-b border-line py-1 pr-1 pl-4">
-        <span className="font-mono text-xs text-faint">{title ?? lang}</span>
-        <CopyButton text={code} />
-      </div>
+    <Panel title={title ?? lang} action={<CopyButton text={code} />} className={className}>
       <pre className="overflow-x-auto p-4 font-mono text-[13px] leading-relaxed">
         <code>{highlight(code, lang)}</code>
       </pre>
-    </div>
+    </Panel>
   );
 }
 

@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
-import { ArrowRight } from "lucide-react";
-import { Logo } from "./Nav";
-import { CodeBlock, CopyButton, GitHubIcon, Reveal, Section } from "./ui";
-import { DOCS, REPO } from "../lib";
+import { motion } from "motion/react";
+import { Wordmark } from "./Nav";
+import { CodeBlock, CopyButton, Section } from "./ui";
+import { DOCS, PYPI, REPO, install } from "../lib";
 
 const MAP: [string, string][] = [
   ["BaseLLM / OpenAILLM", "BaseChatModel / ChatOpenAI"],
@@ -23,30 +22,70 @@ export function Equivalence() {
   return (
     <Section
       id="map"
-      eyebrow="Coming from LangChain?"
-      title="The same ideas, without the layers on top."
-      lead="If you know LangChain, you already know the shape of LightAgentX. The difference is that you can read all of it."
+      n="06"
+      title="If you know LangChain"
+      lead={<p>Most pieces have a direct counterpart. The rows without one are the parts I built because I needed them.</p>}
     >
-      <Reveal className="overflow-hidden rounded-2xl border border-line">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[34rem] text-left text-sm">
-            <thead className="bg-surface text-xs tracking-wider text-faint uppercase">
-              <tr>
-                <th scope="col" className="px-5 py-3 font-medium">LightAgentX</th>
-                <th scope="col" className="px-5 py-3 font-medium">LangChain</th>
+      <div className="overflow-x-auto rounded-lg border border-line bg-surface">
+        <table className="w-full min-w-[34rem] text-left text-[15px]">
+          <thead className="border-b border-line text-sm text-faint">
+            <tr>
+              <th scope="col" className="px-5 py-3 font-medium">LightAgentX</th>
+              <th scope="col" className="px-5 py-3 font-medium">LangChain</th>
+            </tr>
+          </thead>
+          <tbody>
+            {MAP.map(([a, b]) => (
+              <tr key={a} className="border-t border-line first:border-t-0">
+                <td className="px-5 py-3 font-mono text-[13px] text-accent">{a}</td>
+                <td className={`px-5 py-3 ${b.startsWith("No equivalent") ? "text-faint italic" : "text-muted"}`}>{b}</td>
               </tr>
-            </thead>
-            <tbody>
-              {MAP.map(([a, b]) => (
-                <tr key={a} className="border-t border-line transition-colors hover:bg-white/[0.02]">
-                  <td className="px-5 py-3 font-mono text-[13px] text-accent">{a}</td>
-                  <td className={`px-5 py-3 ${b.startsWith("No equivalent") ? "text-faint italic" : "text-muted"}`}>{b}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Reveal>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Section>
+  );
+}
+
+// From the "Limitations (honest)" sections of the docs and the README.
+const LIMITS: [area: string, text: string][] = [
+  ["Sandbox", "Real isolation (bubblewrap) is Linux-only. Elsewhere commands run as plain subprocesses and every one needs your approval."],
+  ["Sandbox", "File tools, opening files and launching apps act on your real desktop. They're guarded by policy and confirmation, not isolation."],
+  ["Registry", "Principals are names, not authenticated identities. It's meant for cooperating processes on one machine or a shared filesystem."],
+  ["Registry", "History grows without limit; there's no garbage collection yet. Only SingleAgent is supported."],
+  ["Registry", "Merging two diverged transcripts keeps them valid, but can't make two different conversations agree."],
+  ["Doctor", "Verification is only as strong as your tests. Changes that don't fail at import time show up only through tests or warnings."],
+  ["Doctor", "The \"where does it live now\" search is by name: it finds moved code, not renamed functions."],
+];
+
+export function Limits() {
+  return (
+    <Section
+      id="limits"
+      n="07"
+      title="What it doesn't do"
+      lead={<p>This is a learning project that grew real features. These are the edges I know about.</p>}
+    >
+      <dl className="grid gap-x-12 md:grid-cols-2">
+        {LIMITS.map(([area, text], i) => (
+          <div key={i} className="flex gap-4 border-t border-line py-4">
+            <dt className="w-20 shrink-0 font-mono text-sm text-faint">{area}</dt>
+            <dd className="leading-relaxed text-muted">{text}</dd>
+          </div>
+        ))}
+      </dl>
+      <p className="mt-8 text-sm text-faint">
+        Details:{" "}
+        <a className="link" href={`${DOCS}/agent-registry.md`} target="_blank" rel="noreferrer">
+          registry
+        </a>
+        ,{" "}
+        <a className="link" href={`${DOCS}/doctor.md`} target="_blank" rel="noreferrer">
+          doctor
+        </a>
+        .
+      </p>
     </Section>
   );
 }
@@ -71,18 +110,6 @@ agent = SingleAgent(name="Assistant", llm=OpenAILLM(model="gpt-4o-mini"),
 print(agent.run("What's the weather like in Tokyo?"))`,
   },
   {
-    id: "crew",
-    label: "Crew",
-    code: `from lightagentx import CrewAgent, OpenAILLM, SingleAgent
-
-llm = OpenAILLM()
-researcher = SingleAgent(name="Researcher", llm=llm, tools=[search])
-writer = SingleAgent(name="Writer", llm=llm)
-
-crew = CrewAgent(name="Newsroom", agents=[researcher, writer], manager_llm=llm)
-crew.run("Write a short brief on small local LLMs")`,
-  },
-  {
     id: "hooks",
     label: "Hooks",
     code: `from lightagentx import HookRegistry, OpenAILLM, SingleAgent
@@ -100,12 +127,12 @@ agent.run("Hello")`,
     id: "local",
     label: "Fully local",
     lang: "bash" as const,
-    code: `pip install "lightagentx[os]"
+    code: `${install("os")}
 
 # SmartOS chat terminal on a local model
 lightx-os --base-url http://localhost:11434/v1 --model llama3.1
 
-# or check and fix a project
+# check and fix a project
 lightx doctor --fix --base-url http://localhost:11434/v1 --model qwen2.5:3b`,
   },
 ];
@@ -113,31 +140,33 @@ lightx doctor --fix --base-url http://localhost:11434/v1 --model qwen2.5:3b`,
 export function Quickstart() {
   const [tab, setTab] = useState(TABS[0].id);
   const current = TABS.find((t) => t.id === tab)!;
+  const steps: [string, string][] = [
+    ["Install", install()],
+    ["Set a key (or skip it and use a local model)", "export OPENAI_API_KEY=..."],
+    ["Run an example from the repo", "python examples/02_tool_agent.py"],
+  ];
   return (
-    <Section id="quickstart" eyebrow="Quickstart" title="From pip install to a working agent in about a minute.">
-      <div className="grid gap-8 lg:grid-cols-[0.75fr_1.25fr]">
-        <Reveal className="space-y-6">
-          {[
-            ["Install", 'pip install lightagentx   # extras: [anthropic] [gemini] [os] [all]'],
-            ["Set a key", "export OPENAI_API_KEY=...   # or ANTHROPIC / GOOGLE, or none for local"],
-            ["Run an example", "python examples/02_tool_agent.py"],
-          ].map(([t, c], i) => (
-            <div key={t} className="flex gap-4">
-              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-accent font-mono text-sm font-semibold text-accent-ink">
-                {i + 1}
-              </span>
-              <div className="min-w-0 flex-1">
-                <div className="font-medium">{t}</div>
-                <div className="mt-2 flex items-center gap-2 rounded-lg border border-line bg-surface py-1 pr-1 pl-3">
-                  <code className="flex-1 overflow-x-auto font-mono text-xs whitespace-nowrap text-muted">{c}</code>
-                  <CopyButton text={c.split("   #")[0]} />
-                </div>
+    <Section id="quickstart" n="08" title="Trying it">
+      <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
+        <ol className="space-y-7">
+          {steps.map(([t, c], i) => (
+            <li key={t}>
+              <div className="text-muted">
+                <span className="font-mono text-sm text-faint">{i + 1}.</span> {t}
               </div>
-            </div>
+              <div className="mt-2 flex items-center gap-2 rounded-lg border border-code-line bg-code py-1 pr-1 pl-3 text-code-fg">
+                <code className="flex-1 overflow-x-auto font-mono text-xs whitespace-nowrap">{c}</code>
+                <CopyButton text={c} />
+              </div>
+            </li>
           ))}
-        </Reveal>
-        <Reveal delay={0.1}>
-          <div role="tablist" aria-label="Code examples" className="mb-3 flex gap-1 overflow-x-auto rounded-lg border border-line bg-surface p-1">
+          <li className="text-sm leading-relaxed text-faint">
+            Extras: <code className="ic">[anthropic]</code> <code className="ic">[gemini]</code> <code className="ic">[os]</code>{" "}
+            <code className="ic">[all]</code>.
+          </li>
+        </ol>
+        <div>
+          <div role="tablist" aria-label="Code examples" className="mb-3 flex gap-1 border-b border-line">
             {TABS.map((t) => (
               <button
                 key={t.id}
@@ -146,35 +175,21 @@ export function Quickstart() {
                 aria-selected={tab === t.id}
                 aria-controls="qs-panel"
                 onClick={() => setTab(t.id)}
-                className={`relative min-h-11 flex-1 cursor-pointer rounded-md px-3 text-sm whitespace-nowrap transition-colors ${
+                className={`relative min-h-11 cursor-pointer px-3 text-sm whitespace-nowrap transition-colors ${
                   tab === t.id ? "text-fg" : "text-muted hover:text-fg"
                 }`}
               >
+                {t.label}
                 {tab === t.id && (
-                  <motion.span
-                    layoutId="qs-tab"
-                    className="absolute inset-0 rounded-md bg-surface-2 ring-1 ring-line-strong"
-                    transition={{ type: "spring", stiffness: 420, damping: 34 }}
-                  />
+                  <motion.span layoutId="qs-tab" className="absolute inset-x-2 -bottom-px h-0.5 bg-accent" transition={{ type: "spring", stiffness: 500, damping: 40 }} />
                 )}
-                <span className="relative">{t.label}</span>
               </button>
             ))}
           </div>
           <div id="qs-panel" role="tabpanel">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={tab}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6, transition: { duration: 0.12 } }}
-                transition={{ duration: 0.25 }}
-              >
-                <CodeBlock code={current.code} lang={current.lang ?? "python"} title={current.lang ? "terminal" : "agent.py"} />
-              </motion.div>
-            </AnimatePresence>
+            <CodeBlock code={current.code} lang={current.lang ?? "python"} title={current.lang ? "terminal" : "agent.py"} />
           </div>
-        </Reveal>
+        </div>
       </div>
     </Section>
   );
@@ -182,36 +197,26 @@ export function Quickstart() {
 
 export function Footer() {
   return (
-    <footer className="relative mt-8 border-t border-line">
-      <div className="mx-auto max-w-6xl px-4 py-20 text-center sm:px-6">
-        <Reveal>
-          <h2 className="mx-auto max-w-2xl text-[1.7rem] leading-tight font-semibold text-balance sm:text-[2.15rem]">
-            Read the code you depend on.
-          </h2>
-          <p className="mx-auto mt-4 max-w-lg text-muted">MIT licensed and written in pure Python. Clone it, read it, change it.</p>
-          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <a
-              href={REPO}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-accent px-6 font-medium text-accent-ink transition-transform hover:-translate-y-0.5"
-            >
-              <GitHubIcon /> Star on GitHub
-            </a>
-            <a
-              href={`${DOCS}/guide.md`}
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-line-strong px-6 font-medium transition-colors hover:bg-white/5"
-            >
-              Read the guide <ArrowRight className="size-4" />
-            </a>
-          </div>
-        </Reveal>
-      </div>
-      <div className="border-t border-line">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 pt-8 pb-[calc(2rem+env(safe-area-inset-bottom))] text-sm text-faint sm:flex-row sm:px-6">
-          <Logo />
-          <p>Built from scratch to understand how agents work under the hood.</p>
+    <footer className="border-t border-line">
+      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 pt-12 pb-[calc(3rem+env(safe-area-inset-bottom))] sm:flex-row sm:items-end sm:justify-between sm:px-6">
+        <div>
+          <Wordmark />
+          <p className="mt-2 max-w-md text-sm leading-relaxed text-faint">Built by Devansh to learn how agent frameworks work. MIT licensed.</p>
         </div>
+        <p className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
+          <a className="link" href={REPO} target="_blank" rel="noreferrer">
+            GitHub
+          </a>
+          <a className="link" href={`${DOCS}/guide.md`} target="_blank" rel="noreferrer">
+            Guide
+          </a>
+          <a className="link" href={PYPI} target="_blank" rel="noreferrer">
+            PyPI
+          </a>
+          <a className="link" href={`${REPO}/issues`} target="_blank" rel="noreferrer">
+            Issues
+          </a>
+        </p>
       </div>
     </footer>
   );
