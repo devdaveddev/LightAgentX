@@ -25,3 +25,10 @@ Multi-stage build: Node compiles the site, then a non-root nginx serves `dist/` 
 
 `render.yaml` at the repo root defines the service. It builds `web/Dockerfile` and redeploys on
 pushes that touch `web/`.
+
+## Install as an app (PWA)
+
+The site is an installable web app: on Android/Chrome use **Install app**, on iPhone use
+**Share → Add to Home Screen**. It opens full-screen, respects the notch and home indicator, and works
+offline after the first visit (service worker via `vite-plugin-pwa`, updates itself on each deploy).
+Icons are in `public/`.

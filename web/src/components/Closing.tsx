@@ -146,7 +146,7 @@ export function Quickstart() {
                 aria-selected={tab === t.id}
                 aria-controls="qs-panel"
                 onClick={() => setTab(t.id)}
-                className={`relative min-h-10 flex-1 cursor-pointer rounded-md px-3 text-sm whitespace-nowrap transition-colors ${
+                className={`relative min-h-11 flex-1 cursor-pointer rounded-md px-3 text-sm whitespace-nowrap transition-colors ${
                   tab === t.id ? "text-fg" : "text-muted hover:text-fg"
                 }`}
               >
@@ -208,7 +208,7 @@ export function Footer() {
         </Reveal>
       </div>
       <div className="border-t border-line">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 text-sm text-faint sm:flex-row sm:px-6">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 pt-8 pb-[calc(2rem+env(safe-area-inset-bottom))] text-sm text-faint sm:flex-row sm:px-6">
           <Logo />
           <p>Built from scratch to understand how agents work under the hood.</p>
         </div>

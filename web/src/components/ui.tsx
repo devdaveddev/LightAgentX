@@ -65,7 +65,7 @@ export function CopyButton({ text, className = "" }: { text: string; className?:
           /* clipboard unavailable */
         }
       }}
-      className={`inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted transition-colors hover:bg-white/5 hover:text-fg ${className}`}
+      className={`inline-flex size-11 shrink-0 cursor-pointer md:size-9 items-center justify-center rounded-md text-muted transition-colors hover:bg-white/5 hover:text-fg ${className}`}
     >
       <motion.span key={copied ? "y" : "n"} initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}>
         {copied ? <Check className="size-4 text-accent" /> : <Copy className="size-4" />}

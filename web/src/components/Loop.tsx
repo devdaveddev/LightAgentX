@@ -158,7 +158,7 @@ export function Loop() {
                 type="button"
                 onClick={() => setPaused((p) => !p)}
                 aria-label={paused ? "Resume step walkthrough" : "Pause step walkthrough"}
-                className="inline-flex size-9 cursor-pointer items-center justify-center rounded-md transition-colors duration-200 hover:bg-white/5 hover:text-fg"
+                className="inline-flex size-11 cursor-pointer items-center justify-center rounded-md transition-colors md:size-9 duration-200 hover:bg-white/5 hover:text-fg"
               >
                 {paused ? <Play className="size-3.5" /> : <Pause className="size-3.5" />}
               </button>

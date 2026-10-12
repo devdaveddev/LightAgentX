@@ -53,7 +53,7 @@ function Terminal() {
               type="button"
               onClick={() => setPlaying((p) => !p)}
               aria-label={playing ? "Pause demo" : "Play demo"}
-              className="-my-1.5 -mr-2 inline-flex size-9 cursor-pointer items-center justify-center rounded-md text-faint transition-colors duration-200 hover:bg-white/5 hover:text-fg"
+              className="-my-2.5 -mr-2 inline-flex size-11 cursor-pointer md:-my-1.5 md:size-9 items-center justify-center rounded-md text-faint transition-colors duration-200 hover:bg-white/5 hover:text-fg"
             >
               {playing ? <Pause className="size-3.5" /> : <Play className="size-3.5" />}
             </button>
@@ -96,7 +96,7 @@ const INSTALL = "pip install lightagentx";
 
 export function Hero() {
   return (
-    <section id="top" className="relative overflow-hidden pt-32 pb-20 md:pt-40 md:pb-28">
+    <section id="top" className="relative overflow-hidden pt-[calc(8rem+env(safe-area-inset-top))] pb-20 md:pt-[calc(10rem+env(safe-area-inset-top))] md:pb-28">
       <div className="bg-grid pointer-events-none absolute inset-0" aria-hidden />
       <motion.div
         className="pointer-events-none absolute top-[-10rem] left-1/2 h-[30rem] w-[60rem] -translate-x-1/2 rounded-full bg-accent/10 blur-3xl"
