@@ -1,87 +1,94 @@
-import { CodeBlock, Panel, Section } from "./ui";
-import { DOCS } from "../lib";
+import { motion } from "motion/react";
+import { CodeBlock, Reveal, Section } from "./ui";
+import { DOCS, ease } from "../lib";
 
-const PIPELINE: [step: string, what: string][] = [
-  ["Propose", "The LLM gets the error, your code around the line, the installed version and where the missing name lives now."],
-  ["Apply", "The patch goes onto a fresh copy of the project, never your files."],
-  ["Verify", "In the sandbox: the problem must be gone, and every import and test that passed before must still pass."],
-  ["Show", "You see the diff and the verification result. A rejected patch goes back to the LLM with the reason."],
-  ["Apply?", "Only if you answer y. The original is backed up first."],
+const PIPELINE = [
+  { k: "PROPOSE", d: "The LLM gets the error, your code around the line, the installed version, and where the missing name lives now." },
+  { k: "APPLY", d: "The patch is applied to a fresh copy of the project. Your own files aren't touched." },
+  { k: "VERIFY", d: "In the sandbox, the problem must be gone and every import and test that passed before must still pass." },
+  { k: "SHOW", d: "You see the diff and the verification result. If verification fails, the reason goes back to the LLM for another try." },
+  { k: "APPLY?", d: "Nothing changes unless you answer y. The original is backed up first." },
+];
+
+const CHECKS = [
+  ["Dependencies", "Missing or wrong versions, and pip conflicts"],
+  ["Imports", "Names broken by an upgrade, and where they live now"],
+  ["Deprecations", "Warnings raised in your code, with file and line"],
+  ["Saved agents", "Old snapshot formats and corrupted registry history"],
 ];
 
 export function Doctor() {
   return (
     <Section
       id="doctor"
-      n="05"
-      title="When an upgrade breaks things"
-      lead={
-        <p>
-          Library upgrades break agent projects all the time: a function moves, a package splits in two, an API is deprecated.{" "}
-          <code className="ic">lightx doctor</code> finds these. With <code className="ic">--fix</code> it asks an LLM for a patch,
-          proves the patch works in the sandbox, and changes your code only after you say yes.
-        </p>
-      }
+      eyebrow="lightx doctor"
+      title="When an upgrade breaks your agents, get a fix that's been tested first."
+      lead="A function moves, a package splits in two, or an API gets deprecated. Doctor finds the problem. With --fix it checks a patch against your tests before offering it to you."
     >
-      <div className="grid gap-10 lg:grid-cols-2">
-        <div className="space-y-6">
-          <Panel title="lightx doctor  (the example from the test suite)">
-            <pre className="overflow-x-auto p-4 font-mono text-[12.5px] leading-[1.7]">
-              <span className="font-bold">Imports</span>
-              {"\n  "}
-              <span className="ansi-red">✗</span> 'load_data' no longer exists in fakelib  app.py:2  <span className="ansi-yellow">[fixable]</span>
-              {"\n      "}
-              <span className="text-code-dim">fakelib is installed; 'load_data' is now defined in: fakelib.io</span>
-              {"\n  "}
-              <span className="ansi-red">✗</span> Can't import fakelib.legacy  app.py:3  <span className="ansi-yellow">[fixable]</span>
-              {"\n      "}
-              <span className="text-code-dim">ModuleNotFoundError: No module named 'fakelib.legacy'</span>
-              {"\n      "}
-              <span className="text-code-dim">Possibly moved to: fakelib_community.legacy</span>
-            </pre>
-          </Panel>
-          <p className="leading-relaxed text-muted">
-            With a local <code className="ic">qwen2.5:3b</code>, <code className="ic">--fix</code> proposed and verified{" "}
-            <code className="ic">from fakelib.io import load_data</code> and{" "}
-            <code className="ic">from fakelib_community.legacy import helper</code>. Once the imports worked the tests could run,
-            which exposed a deprecation warning on line 8; that was fixed next with <code className="ic">compute_v2()</code>.
-          </p>
+      <div className="grid gap-6 lg:grid-cols-[1fr_1.1fr]">
+        <Reveal className="flex flex-col gap-6">
           <CodeBlock
             lang="bash"
             title="terminal"
-            code={`lightx doctor           # report only; changes nothing
-lightx doctor --fix     # propose, verify in the sandbox, ask you
+            code={`lightx doctor          # report only; changes nothing
+lightx doctor --fix    # propose → verify in sandbox → you approve
 
-# a 3B model on a laptop CPU is enough
-lightx doctor --fix --base-url http://127.0.0.1:11434/v1 --model qwen2.5:3b`}
+# with a local model, nothing leaves your machine
+lightx doctor --fix --base-url http://localhost:11434/v1 --model qwen2.5:3b`}
           />
-        </div>
-
-        <div>
-          <h3 className="text-xl font-medium">What --fix does with each problem</h3>
-          <ol className="mt-5 border-l border-line">
-            {PIPELINE.map(([step, what], i) => (
-              <li key={step} className="relative pb-6 pl-6 last:pb-0">
-                <span className="absolute top-1.5 -left-[5px] size-[9px] rounded-full border-2 border-accent bg-bg" aria-hidden />
-                <div className="font-mono text-sm">
-                  <span className="text-faint">{i + 1}.</span> {step}
-                </div>
-                <p className="mt-1 leading-relaxed text-muted">{what}</p>
-              </li>
+          <div className="grid grid-cols-2 gap-3">
+            {CHECKS.map(([t, d]) => (
+              <div key={t} className="rounded-xl border border-line bg-surface p-4">
+                <div className="text-sm font-medium">{t}</div>
+                <div className="mt-1 text-xs leading-relaxed text-muted">{d}</div>
+              </div>
             ))}
-          </ol>
-          <p className="mt-8 leading-relaxed text-muted">
-            Then it checks again, because fixing one problem can reveal the next. Patches may not touch your tests, so a fix can't
-            pass by editing them. Small models are enough because the doctor has already found the problem, the line and where the
-            name lives now; the model only writes a one-line edit, and wrong answers are cheap.
-          </p>
-          <p className="mt-6 text-sm">
-            <a className="link" href={`${DOCS}/doctor.md`} target="_blank" rel="noreferrer">
-              How detection and verification work
-            </a>
-          </p>
-        </div>
+          </div>
+        </Reveal>
+
+        <ol className="relative">
+          <motion.div
+            className="absolute top-5 bottom-5 left-[19px] w-px origin-top bg-gradient-to-b from-accent to-sky"
+            initial={{ scaleY: 0 }}
+            whileInView={{ scaleY: 1 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 1.4, ease }}
+            aria-hidden
+          />
+          {PIPELINE.map((p, i) => (
+            <motion.li
+              key={p.k}
+              initial={{ opacity: 0, x: 16 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.5, delay: 0.15 + i * 0.22, ease }}
+              className="relative flex gap-5 pb-7 last:pb-0"
+            >
+              <span className="relative z-10 flex size-10 shrink-0 items-center justify-center rounded-full border border-line-strong bg-surface font-mono text-xs text-accent">
+                {i + 1}
+              </span>
+              <div className="pt-1.5">
+                <div className="font-mono text-sm tracking-wide">{p.k}</div>
+                <p className="mt-1 text-sm leading-relaxed text-muted">{p.d}</p>
+              </div>
+            </motion.li>
+          ))}
+          <motion.li
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 1.5 }}
+            className="mt-6 ml-15 list-none rounded-lg border border-line bg-surface-2 px-4 py-3 text-sm text-muted"
+          >
+            Then it checks again, because fixing one problem can uncover the next one. Patches may not edit your tests, so a fix can't pass by changing them.
+          </motion.li>
+        </ol>
       </div>
+      <Reveal className="mt-6">
+        <a href={`${DOCS}/doctor.md`} className="text-sm text-muted underline decoration-line-strong underline-offset-4 hover:text-fg">
+          How detection and verification work →
+        </a>
+      </Reveal>
     </Section>
   );
 }

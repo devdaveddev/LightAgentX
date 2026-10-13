@@ -11,7 +11,6 @@
   },
   "dependencies": {
     "@fontsource-variable/jetbrains-mono": "^5.3.0",
-    "@fontsource-variable/newsreader": "^5.3.0",
     "@fontsource/ibm-plex-sans": "^5.3.0",
     "lucide-react": "^1.55.0",
     "motion": "^14.1.0",

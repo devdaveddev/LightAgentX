@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import { Archive, FileCheck2, Lock, Upload } from "lucide-react";
-import { CodeBlock, Section } from "./ui";
+import { CodeBlock, Reveal, Section } from "./ui";
 import { DOCS, ease } from "../lib";
 
 /* ── version graph ─────────────────────────────────────────── */
@@ -31,7 +31,7 @@ function VersionGraph() {
           key={d}
           d={d}
           fill="none"
-          style={{ stroke: i === 2 || i === 4 ? "var(--color-sky)" : "var(--color-accent)" }}
+          stroke={i === 2 || i === 4 ? "#38bdf8" : "#22c55e"}
           strokeOpacity={0.7}
           strokeWidth={2}
           initial={{ pathLength: 0 }}
@@ -49,7 +49,7 @@ function VersionGraph() {
           transition={{ type: "spring", stiffness: 400, damping: 22, delay: 0.2 + i * 0.25 }}
           style={{ transformOrigin: `${n.x}px ${n.y}px` }}
         >
-          <circle cx={n.x} cy={n.y} r={n.label.includes("merge") ? 9 : 7} strokeWidth={2.5} style={{ fill: "var(--color-surface)", stroke: n.lane === "side" ? "var(--color-sky)" : "var(--color-accent)" }} />
+          <circle cx={n.x} cy={n.y} r={n.label.includes("merge") ? 9 : 7} fill="#0f172a" stroke={n.lane === "side" ? "#38bdf8" : "#22c55e"} strokeWidth={2.5} />
           <text x={n.x} y={n.lane === "side" ? n.y + 28 : n.y - 22} textAnchor="middle" className="fill-fg font-mono text-[11px]">
             {n.id}…
           </text>
@@ -131,24 +131,12 @@ export function Registry() {
   return (
     <Section
       id="registry"
-      n="04"
-      title="Agents that outlive the process that started them"
-      lead={
-        <>
-          <p>
-            In most frameworks an agent's state lives in one process, or in a checkpoint keyed by a thread id. The registry
-            treats agents as long-lived resources instead: any process can find one, attach to it and carry on, and every session
-            commits an immutable version addressed by its SHA-256 hash.
-          </p>
-          <p>
-            The hard part is two processes writing at once. The registry merges, forks or rejects, and never silently overwrites.
-            I measured that against LangGraph's SQLite checkpointer; the numbers are below.
-          </p>
-        </>
-      }
+      eyebrow="Agent Registry"
+      title="Agents that persist, with git-like history."
+      lead="Any process can find an agent, attach to it and continue its work. Every session commits an immutable, SHA-256 addressed version. When two processes write at once, the registry merges, forks or rejects. It never silently overwrites."
     >
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="flex flex-col gap-6">
+        <Reveal className="flex flex-col gap-6">
           <CodeBlock
             title="example_09_agent_registry.py"
             code={`from lightagentx import AgentRegistry
@@ -161,7 +149,7 @@ with reg.attach(aid, "alice", llm=llm) as s:   # any process, any time
     s.run("Customer ACME wants a refund")
     s.state["customer"] = "ACME"                 # committed as a new version`}
           />
-          <div className="rounded-lg border border-line bg-surface p-5">
+          <div className="rounded-2xl border border-line bg-surface p-5">
             <VersionGraph />
             <div className="mt-2 flex flex-wrap gap-2">
               {["log", "diff", "time travel", "verify()", "on_conflict = merge · fork · reject"].map((t) => (
@@ -171,12 +159,12 @@ with reg.attach(aid, "alice", llm=llm) as s:   # any process, any time
               ))}
             </div>
           </div>
-        </div>
-        <div className="flex flex-col gap-6">
-          <div className="rounded-lg border border-line bg-surface p-6">
+        </Reveal>
+        <Reveal delay={0.1} className="flex flex-col gap-6">
+          <div className="rounded-2xl border border-line bg-surface p-6">
             <LossChart />
           </div>
-          <div className="rounded-lg border border-line bg-surface p-6">
+          <div className="rounded-2xl border border-line bg-surface p-6">
             <div className="font-medium">Permissions for each principal</div>
             <p className="mt-1 text-sm text-muted">
               Writers can be scoped to branches, state keys can be private, and secrets are redacted. A restricted session runs on a redacted copy and still writes back without losing data.
@@ -196,16 +184,24 @@ with reg.attach(aid, "alice", llm=llm) as s:   # any process, any time
               ))}
             </div>
           </div>
-        </div>
+        </Reveal>
       </div>
 
-      <div className="mt-16">
-        <h3 className="text-2xl font-medium">Moving an agent to another machine</h3>
+      <Reveal className="mt-16">
+        <h3 className="text-xl font-semibold tracking-tight">Move an agent to another machine as a single file.</h3>
         <p className="mt-2 max-w-2xl text-muted">
           Export writes the whole agent to one <code className="font-mono text-fg">.lxagent</code> archive, and import checks every hash before restoring it.
         </p>
-      </div>
+      </Reveal>
       <div className="relative mt-8">
+        <motion.div
+          className="absolute top-6 right-[12%] left-[12%] hidden h-px origin-left bg-gradient-to-r from-accent via-sky to-accent md:block"
+          initial={{ scaleX: 0 }}
+          whileInView={{ scaleX: 1 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 1.2, ease }}
+          aria-hidden
+        />
         <ol className="relative grid gap-4 md:grid-cols-4">
         {SHIP.map((s, i) => (
           <motion.li
@@ -214,9 +210,9 @@ with reg.attach(aid, "alice", llm=llm) as s:   # any process, any time
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.6, ease, delay: 0.15 + i * 0.15 }}
-            className="relative h-full rounded-lg border border-line bg-surface p-5"
+            className="relative h-full rounded-2xl border border-line bg-surface p-5"
           >
-            <span className="relative z-10 inline-flex size-12 items-center justify-center rounded-lg border border-line-strong bg-surface-2 text-accent">
+            <span className="relative z-10 inline-flex size-12 items-center justify-center rounded-xl border border-line-strong bg-surface-2 text-accent">
               <s.icon className="size-5" />
             </span>
             <div className="mt-4 font-mono text-sm text-fg">{s.title}</div>
@@ -225,11 +221,11 @@ with reg.attach(aid, "alice", llm=llm) as s:   # any process, any time
         ))}
         </ol>
       </div>
-      <div className="mt-6">
+      <Reveal className="mt-6">
         <a href={`${DOCS}/agent-registry.md`} className="text-sm text-muted underline decoration-line-strong underline-offset-4 hover:text-fg">
           Design, guarantees and limitations →
         </a>
-      </div>
+      </Reveal>
     </Section>
   );
 }

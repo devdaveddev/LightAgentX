@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Ban, CheckCircle2, CircleSlash, FileText, HelpCircle, ShieldCheck } from "lucide-react";
-import { CodeBlock, Section } from "./ui";
+import { CodeBlock, Reveal, Section } from "./ui";
 import { ease } from "../lib";
 
 type Status = "pass" | "block" | "ask" | "skip" | "log";
@@ -84,24 +84,12 @@ export function Sandbox() {
   return (
     <Section
       id="sandbox"
-      n="03"
-      title="Letting an agent touch your computer"
-      lead={
-        <>
-          <p>
-            SmartOS is a crew of agents with real access to files, processes, apps, security checks and a shell. That is only
-            acceptable if an agent <em>can't</em> do damage you didn't approve, so every action goes through one{" "}
-            <code className="ic">Sandbox</code> with four layers.
-          </p>
-          <p>
-            Pick an action below to see where it is stopped. The outcomes match the default policy in{" "}
-            <code className="ic">sandbox/policy.py</code>.
-          </p>
-        </>
-      }
+      eyebrow="Sandbox · SmartOS"
+      title="Give agents real OS access, and keep control of every action."
+      lead="SmartOS gives a crew of agents control over files, processes, apps, security checks and a shell. Every action goes through one Sandbox. If the sandbox refuses, the agent is told why and instructed not to work around it."
     >
       <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
-        <div>
+        <Reveal>
           <p className="mb-3 text-sm text-muted">Pick something an agent tries to do:</p>
           <div className="flex flex-col gap-2" role="radiogroup" aria-label="Agent action">
             {SCENARIOS.map((sc, idx) => (
@@ -120,9 +108,9 @@ export function Sandbox() {
               </button>
             ))}
           </div>
-        </div>
+        </Reveal>
 
-        <div className="rounded-lg border border-line bg-surface p-5 sm:p-6">
+        <Reveal delay={0.1} className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
           <AnimatePresence mode="wait">
             <motion.div key={i} initial="hidden" animate="show" exit={{ opacity: 0, transition: { duration: 0.15 } }}>
               <ol className="relative space-y-3">
@@ -169,11 +157,11 @@ export function Sandbox() {
               </motion.div>
             </motion.div>
           </AnimatePresence>
-        </div>
+        </Reveal>
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <div>
+        <Reveal>
           <CodeBlock
             lang="text"
             title="lightx-os"
@@ -189,8 +177,8 @@ you › kill the biggest one
 ⚠ HIGH RISK  terminate: PID 145395 (java)
 Allow? [y/N]`}
           />
-        </div>
-        <div>
+        </Reveal>
+        <Reveal delay={0.1}>
           <CodeBlock
             title="your own agents, same sandbox"
             code={`from lightagentx import Risk, Sandbox, SandboxPolicy, SingleAgent
@@ -203,15 +191,15 @@ agent = SingleAgent(name="Ops", llm=llm, tools=[read_report], sandbox=sandbox)
 
 # Tools that don't declare a risk are treated as HIGH.`}
           />
-        </div>
+        </Reveal>
       </div>
-      <div className="mt-6">
+      <Reveal className="mt-6">
         <p className="text-sm text-faint">
           Runs fully local if you want it to:{" "}
           <code className="font-mono text-muted">lightx-os --base-url http://localhost:11434/v1 --model llama3.1</code>. SmartOS
           can be switched off at runtime with <code className="font-mono text-muted">lightx-os --disable</code>.
         </p>
-      </div>
+      </Reveal>
     </Section>
   );
 }
