@@ -11,6 +11,8 @@ const LINKS = [
   { href: "#registry", label: "Registry" },
   { href: "#doctor", label: "Doctor" },
   { href: "#quickstart", label: "Quickstart" },
+  { href: "#setup", label: "Setup" },
+  { href: "#troubleshooting", label: "Troubleshooting" },
 ];
 
 export function Logo() {

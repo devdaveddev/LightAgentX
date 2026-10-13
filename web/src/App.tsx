@@ -7,6 +7,7 @@ import { Sandbox } from "./components/Sandbox";
 import { Registry } from "./components/Registry";
 import { Doctor } from "./components/Doctor";
 import { Equivalence, Footer, Quickstart } from "./components/Closing";
+import { Setup, Troubleshooting } from "./components/Docs";
 
 function ScrollProgress() {
   const { scrollYProgress } = useScroll();
@@ -32,6 +33,8 @@ export default function App() {
         <Doctor />
         <Equivalence />
         <Quickstart />
+        <Setup />
+        <Troubleshooting />
       </main>
       <Footer />
     </MotionConfig>
